@@ -23,6 +23,7 @@ from flask_task_manager.schemas import (
 import logging
 
 from sqlalchemy import and_
+from middleware.rate_limiter import rate_limit
 
 DEFAULT_LIMIT = 10
 MAX_LIMIT = 100
@@ -115,6 +116,7 @@ def filter_manager(completion, title: str, after_str: str, before_str: str, quer
 
 @tasks.route("/tasks", methods=["GET"])
 @token_required
+@rate_limit("/tasks", limit=100, window_size=60)
 def get_tasks_all(user_id: int):
     try:
         query = Task.query.filter_by(user_id=user_id).order_by(Task.id.asc())

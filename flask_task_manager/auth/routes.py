@@ -161,6 +161,7 @@ def login():
 
 
 @auth.route("/auth/forget-password", methods=["POST"])
+@rate_limit("forget-password", 5, 60)
 def forget_password():
     # it is bit like  we send the mail to the user no since we are the backend service he/she will authenticate user with otp
     # then if the otp written is valid then go and reser password

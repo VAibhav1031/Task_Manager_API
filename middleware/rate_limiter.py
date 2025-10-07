@@ -68,6 +68,8 @@ def rate_limit(key_prefix, limit, window_size):
         def wrapper(*args, **kwargs):
             ip = request.headers.get("X-Forwarded-For", request.remote_addr)
             key_ip = f"{key_prefix}:{ip}"
+
+            logger.info(f"User ip=> {key_ip}")
             window_queue = ip_queue[key_ip]
 
             if sliding_window(window_queue, window_size, limit, key_ip):
