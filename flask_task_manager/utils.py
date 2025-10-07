@@ -199,7 +199,7 @@ def reset_token_chk(func):
 def cursor_encoder(task_id):
     purity = str(task_id).encode()
     encoded_cursor = base64.b64encode(purity)
-    return encoded_cursor
+    return encoded_cursor.decode("utf-8")
 
 
 def cursor_decoder(cursor):

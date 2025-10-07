@@ -84,6 +84,7 @@ services:
 volumes:
   task_app_data:
     name: task_app_data
+    external: true
   redis_data:
     name: redis_data
 
