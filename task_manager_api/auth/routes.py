@@ -1,9 +1,9 @@
 from flask import Blueprint, jsonify, request
-from flask_task_manager import db
-from flask_task_manager.models import User, PasswordReset
+from task_manager_api import db
+from task_manager_api.models import User, PasswordReset
 from flask import current_app
-from flask_task_manager import bcrypt
-from flask_task_manager.utils import (
+from task_manager_api import bcrypt
+from task_manager_api.utils import (
     generate_token,
     generate_token_otp,
     otp_token_chk,
@@ -11,7 +11,7 @@ from flask_task_manager.utils import (
     generate_password_token,
     reset_token_chk,
 )
-from flask_task_manager.error_handler import (
+from task_manager_api.error_handler import (
     handle_marshmallow_error,
     not_found,
     user_already_exists,
@@ -21,7 +21,7 @@ from flask_task_manager.error_handler import (
     bad_request,
     too_many_requests,
 )
-from flask_task_manager.schemas import (
+from task_manager_api.schemas import (
     RegisterSchema,
     LoginSchema,
     ValidationError,
@@ -31,24 +31,25 @@ from flask_task_manager.schemas import (
 )
 import sqlalchemy
 import logging
-import time
 import datetime
 
-from collections import defaultdict, deque
-from middleware.rate_limiter import rate_limit, sliding_window_per_user
+
+from middleware.rate_limiter import (
+    rate_limit,
+    record_failed_attempt,
+    is_user_blocked,
+)
 
 logger = logging.getLogger(__name__)
 
 auth = Blueprint("auth", __name__, url_prefix="/api/")
 
-
-per_user_queue = defaultdict(deque)
-WINDOW_SIZE = 15 * 60
-LIMIT = 5
+LIMIT = 10
+WINDOW_SIZE = 60
 
 
 @auth.route("/auth/signup", methods=["POST"])
-@rate_limit("signup", 3, 60)
+@rate_limit("signup", limit=LIMIT, window_size=WINDOW_SIZE)
 def signup():
     schema = RegisterSchema()
     try:
@@ -62,6 +63,7 @@ def signup():
     user_name = data["username"]
     email = data["email"]
 
+    # ### CHECK FOR ALREADY EXISTING USER-ESSENTIALS ####
     if User.query.filter_by(username=user_name).first():
         logger.warning(f"Signup attempt using existing email {email}")
         return user_already_exists("username already exist")
@@ -70,6 +72,7 @@ def signup():
         logger.warning(f"Signup attempt using existing email {email}")
         return user_already_exists("email already in use")
 
+    # #### Hashing Password ####
     try:
         hashed_password = bcrypt.generate_password_hash(data["password"]).decode(
             "utf-8"
@@ -87,6 +90,13 @@ def signup():
             f"Error in creating user: username={
                 user_name}email={email} error={e}"
         )
+        return internal_server_error(msg="ORM Error")
+
+    except Exception as e:
+        logger.error(
+            f"Error in creating user: username={
+                user_name}email={email} error={e}"
+        )
         return internal_server_error()
 
 
@@ -94,9 +104,8 @@ def signup():
 
 
 @auth.route("/auth/login", methods=["POST"])
-@rate_limit("login", 5, 60)
+@rate_limit("login", limit=LIMIT, window_size=WINDOW_SIZE)
 def login():
-    now = time.time()
     schema = LoginSchema()
     try:
         data = schema.load(request.get_json())
@@ -125,13 +134,12 @@ def login():
 
     # Common Identifier
     identifier = f"{data['email'] if email_log_flag else data['username']}"
+    key_prefix = f"login:user:{identifier}"
 
-    # PER_USER RATE LIMIT Check
-    if not sliding_window_per_user(
-        per_user_queue[identifier],
-        window_size=WINDOW_SIZE,
-        limit=LIMIT,
-        arrival_time=now,
+    # ### PER_USER RATE LIMIT CHECK ###
+    if is_user_blocked(
+        key_prefix,
+        user_max_request=5,
     ):
         logger.error(f"Blocker user with {identifier}, Rate limit exceeded")
         return too_many_requests(msg="Rate limit Exceeded")
@@ -143,7 +151,7 @@ def login():
                 request.remote_addr
             } "  # will work if you dont deploy it on the server with reverse proxy nginx,
         )
-        per_user_queue[identifier].append(now)
+        record_failed_attempt(key_prefix, limit=5, window_size=15 * 60)
         return unauthorized_error(msg="Invalid Credentials")
 
     # ###Token Generation ####
@@ -152,7 +160,6 @@ def login():
         # here we have to give the jwt token for future
         if token:
             logger.info("Token is generated")
-            per_user_queue[identifier].clear()
             return jsonify({"token": token})
 
     except Exception as e:
@@ -161,7 +168,7 @@ def login():
 
 
 @auth.route("/auth/forget-password", methods=["POST"])
-@rate_limit("forget-password", 5, 60)
+@rate_limit("forget-password", limit=LIMIT, window_size=WINDOW_SIZE)
 def forget_password():
     # it is bit like  we send the mail to the user no since we are the backend service he/she will authenticate user with otp
     # then if the otp written is valid then go and reser password
@@ -298,7 +305,7 @@ def reset_password(user_id, email):
 
     except sqlalchemy.exc.SQLAlchemyError as e:
         logger.error(f"Error ocurred in updating password: {e}")
-        return internal_server_error()
+        return internal_server_error(msg="ORM Error")
 
     except Exception as e:
         logger.error(f"Error ocurred in updating password: {e}")

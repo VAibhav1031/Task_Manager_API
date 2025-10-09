@@ -1,4 +1,4 @@
-from flask_task_manager import create_app
+from task_manager_api import create_app
 
 app = create_app()
 

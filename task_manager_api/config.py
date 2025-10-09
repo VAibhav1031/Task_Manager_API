@@ -16,6 +16,10 @@ class Config:
     MAIL_USE_TLS = True
     MAIL_USERNAME = os.environ.get("EMAIL_USER")
     MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD")
+    REDIS_PORT = os.environ.get("REDIS_PORT")
+    REDIS_HOST = os.environ.get("REDIS_HOST", 6379)
+    # REDIS_USER = os.environ.get("REDIS_USER")
+    REDIS_PASSWORD = os.environ.get("REDIS_PASSWORD")
 
 
 class DevConfig(Config):
@@ -34,7 +38,8 @@ class DevConfig(Config):
     ##################################
 
     SQLALCHEMY_DATABASE_URI = (
-        f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+        f"postgresql+psycopg2://{DB_USER}:{
+            DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
@@ -60,7 +65,8 @@ class ProdConfig(Config):
     ##################################
 
     SQLALCHEMY_DATABASE_URI = (
-        f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+        f"postgresql+psycopg2://{DB_USER}:{
+            DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = os.environ.get("SECRET_KEY")

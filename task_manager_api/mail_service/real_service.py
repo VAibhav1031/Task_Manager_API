@@ -1,6 +1,6 @@
 from . import MailService
 from flask_mail import Message
-from flask_task_manager import mail
+from task_manager_api import mail
 from flask import render_template
 
 

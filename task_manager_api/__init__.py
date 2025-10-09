@@ -1,5 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-from flask_task_manager.config import get_config
+from task_manager_api.config import get_config
 from flask import Flask
 from flask_bcrypt import Bcrypt
 import logging.config
@@ -31,17 +31,17 @@ def create_app(config_class=None, verbose=False, quiet=False, log_to_file=True):
     migrate.init_app(app, db)
 
     if app.config.get("USE_FAKE_MAIL", False):
-        from flask_task_manager.mail_service.fake_service import FakeMailService
+        from task_manager_api.mail_service.fake_service import FakeMailService
 
         app.mail_service = FakeMailService(app)
 
     else:
-        from flask_task_manager.mail_service.real_service import RealMailService
+        from task_manager_api.mail_service.real_service import RealMailService
 
         app.mail_service = RealMailService(app)
 
-    from flask_task_manager.auth.routes import auth
-    from flask_task_manager.tasks.routes import tasks
+    from task_manager_api.auth.routes import auth
+    from task_manager_api.tasks.routes import tasks
 
     app.register_blueprint(auth)
     app.register_blueprint(tasks)

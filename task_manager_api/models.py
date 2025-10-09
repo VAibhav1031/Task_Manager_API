@@ -1,4 +1,4 @@
-from flask_task_manager import db
+from task_manager_api import db
 from datetime import datetime, timezone
 
 

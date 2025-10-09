@@ -20,7 +20,7 @@ services:
       DEV_DB_PASSWORD: ${DEV_DB_PASSWORD}
       DEV_DB_NAME: ${DEV_DB_NAME}
       DEV_DB_PORT: 5432
-      REDIS_HOST: redis 
+      REDIS_HOST: redis
       REDIS_PORT: 6379
     
     depends_on:
@@ -78,7 +78,7 @@ services:
     volumes:
       - redis_data:/data 
 
-    command: ["redis-server", "--appendonly", "yes"]
+    command: ["redis-server", "--appendonly", "yes","--requirepass","${REDIS_PASSWORD}"]
 
 
 volumes:
