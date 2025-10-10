@@ -8,9 +8,9 @@ class RegisterSchema(Schema):
 
 
 class LoginSchema(Schema):
-    username = fields.Str(required=False)
+    username = fields.Str(required=False, validate=validate.Length(min=3))
     email = fields.Email(required=False)
-    password = fields.Str(required=True)
+    password = fields.Str(required=True, validate=validate.Length(min=8))
 
     @validates_schema
     def validate_identifier(self, data, **kwargs):
@@ -46,7 +46,7 @@ class ForgetPassword(Schema):
 
 
 class VerifyOtp(Schema):
-    otp = fields.Str(required=True)
+    otp = fields.Str(required=True, validate=validate.Length(min=6))
     email = fields.Email(required=True)
 
 

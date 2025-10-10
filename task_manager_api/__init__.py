@@ -46,4 +46,10 @@ def create_app(config_class=None, verbose=False, quiet=False, log_to_file=True):
     app.register_blueprint(auth)
     app.register_blueprint(tasks)
 
+    app.config["Max_Content_Length"] = 2 * 1024 * 1024
+
+    from .error_handler import register_payload_error_handler
+
+    register_payload_error_handler(app)
+
     return app

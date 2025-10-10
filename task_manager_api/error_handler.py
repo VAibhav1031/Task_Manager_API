@@ -1,4 +1,5 @@
 from flask import jsonify, request
+from werkzeug.exception import RequestEntityTooLarge
 import uuid
 
 central_registry = {
@@ -83,3 +84,12 @@ def too_many_requests(msg=None, reason=None):
     return error_response(
         code="TOO_MANY_REQUEST", status=429, message=msg, reason=reason
     )
+
+
+def register_payload_error_handler(app):
+    @app.errorhandler(RequestEntityTooLarge)
+    def handle_payload_too_large():
+        return bad_request(
+            error_type="PayloadTooLarge",
+            msg="Request payload exceeds maximum allowed size (2 MB)",
+        )
