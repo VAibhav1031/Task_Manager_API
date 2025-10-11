@@ -110,6 +110,8 @@ def get_tasks_all(user_id: int):
                             "created_at": t.created_at.astimezone(
                                 timezone.utc
                             ).strftime("%Y-%m-%dT%H:%M:%SZ"),
+                            "priority": t.priority,
+                            "due_date": t.due_date,
                         }
                         for t in tasks
                     ],
@@ -134,6 +136,7 @@ def get_tasks_all(user_id: int):
 
 @tasks.route("/tasks/<int:task_id>", methods=["GET"])
 @token_required
+@rate_limit("/tasks", limit=100, window_size=60)
 def get_task(user_id: int, task_id: int):
     task = Task.query.filter_by(id=task_id, user_id=user_id).first()
     logger.info("GET /api/tasks requested for get_task...")
@@ -151,6 +154,8 @@ def get_task(user_id: int, task_id: int):
             "created_at": task.created_at.astimezone(timezone.utc).strftime(
                 "%Y-%m-%dT%H:%M:%SZ"
             ),
+            "priority": task.priority,
+            "due_date": task.due_date,
         }
     )
 
@@ -185,6 +190,10 @@ def update_task(user_id: int, task_id: int):
             task.description = data["description"]
         if "completion" in data:
             task.completion = data["completion"]
+        if "priority" in data:
+            task.priority = data["priority"]
+        if "due_date" in data:
+            task.completion = data["due_date"]
         db.session.commit()
         return jsonify({"message": "Task Updated Sucessfully"}), 200
 
@@ -219,15 +228,18 @@ def add_task(user_id):
         logger.warning(
             "Client providing user_id in payload, which is already been get by token"
         )
-    return forbidden_access("Forbidden")
+        return forbidden_access("Forbidden")
 
     try:
         new_task = Task(
             title=data["title"],
-            description=data.get("description"),
-            completion=data.get("completion", False),
+            description=data["description"],
+            completion=data.get("due_date", False),
+            priority=data.get("priority", "medium"),
+            due_date=data.get("due_date"),
             user_id=user_id,
         )
+
         db.session.add(new_task)
         db.session.commit()
 

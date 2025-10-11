@@ -378,84 +378,6 @@ wheels = [
 ]
 
 [[package]]
-name = "flask-task-manager"
-version = "0.1.0"
-source = { editable = "." }
-dependencies = [
-    { name = "flask" },
-    { name = "flask-bcrypt" },
-    { name = "flask-jwt" },
-    { name = "flask-jwt-extended" },
-    { name = "flask-mail" },
-    { name = "flask-migrate" },
-    { name = "flask-sqlalchemy" },
-    { name = "freezegun" },
-    { name = "marshmallow" },
-    { name = "mypy-extensions" },
-    { name = "packaging" },
-    { name = "pathspec" },
-    { name = "pip" },
-    { name = "platformdirs" },
-    { name = "pluggy" },
-    { name = "psycopg2-binary" },
-    { name = "pycparser" },
-    { name = "pygments" },
-    { name = "pyjwt" },
-    { name = "pytest" },
-    { name = "python-dateutil" },
-    { name = "python-dotenv" },
-    { name = "redis" },
-    { name = "requests" },
-    { name = "ruff" },
-    { name = "urllib3" },
-    { name = "wheel" },
-]
-
-[package.optional-dependencies]
-dev = [
-    { name = "black" },
-    { name = "pytest" },
-    { name = "pytest-cov" },
-    { name = "ruff" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "black", marker = "extra == 'dev'", specifier = ">=24.0" },
-    { name = "flask", specifier = ">=3.0" },
-    { name = "flask-bcrypt", specifier = ">=1.0.1" },
-    { name = "flask-jwt", specifier = ">=0.2.0" },
-    { name = "flask-jwt-extended", specifier = ">=4.6" },
-    { name = "flask-mail", specifier = ">=0.10.0" },
-    { name = "flask-migrate", specifier = ">=4.1.0" },
-    { name = "flask-sqlalchemy", specifier = ">=3.1" },
-    { name = "freezegun", specifier = ">=1.5.5" },
-    { name = "marshmallow", specifier = ">=4.0.1" },
-    { name = "mypy-extensions", specifier = ">=1.1.0" },
-    { name = "packaging", specifier = ">=25.0" },
-    { name = "pathspec", specifier = ">=0.12.1" },
-    { name = "pip", specifier = ">=25.2" },
-    { name = "platformdirs", specifier = ">=4.3.8" },
-    { name = "pluggy", specifier = ">=1.6.0" },
-    { name = "psycopg2-binary", specifier = ">=2.9" },
-    { name = "pycparser", specifier = ">=2.23" },
-    { name = "pygments", specifier = ">=2.19.2" },
-    { name = "pyjwt", specifier = ">=2.10.1" },
-    { name = "pytest", specifier = ">=8.4.1" },
-    { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0" },
-    { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=4.1" },
-    { name = "python-dateutil", specifier = ">=2.9.0.post0" },
-    { name = "python-dotenv", specifier = ">=1.0" },
-    { name = "redis", specifier = ">=6.4.0" },
-    { name = "requests", specifier = ">=2.32.5" },
-    { name = "ruff", specifier = ">=0.12.9" },
-    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.4" },
-    { name = "urllib3", specifier = ">=2.5.0" },
-    { name = "wheel", specifier = ">=0.45.1" },
-]
-provides-extras = ["dev"]
-
-[[package]]
 name = "freezegun"
 version = "1.5.5"
 source = { registry = "https://pypi.org/simple" }
@@ -890,6 +812,86 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/ac/a5/ca2f07a2a201f9497de1928f787926613db6307992fe5cda97624eb07c2f/sqlalchemy-2.0.43-cp313-cp313-win_amd64.whl", hash = "sha256:971ba928fcde01869361f504fcff3b7143b47d30de188b11c6357c0505824197", size = 2123200 },
     { url = "https://files.pythonhosted.org/packages/b8/d9/13bdde6521f322861fab67473cec4b1cc8999f3871953531cf61945fad92/sqlalchemy-2.0.43-py3-none-any.whl", hash = "sha256:1681c21dd2ccee222c2fe0bef671d1aef7c504087c9c4e800371cfcc8ac966fc", size = 1924759 },
 ]
+
+[[package]]
+name = "task-manager-api"
+version = "0.2.1"
+source = { editable = "." }
+dependencies = [
+    { name = "flask" },
+    { name = "flask-bcrypt" },
+    { name = "flask-jwt" },
+    { name = "flask-jwt-extended" },
+    { name = "flask-mail" },
+    { name = "flask-migrate" },
+    { name = "flask-sqlalchemy" },
+    { name = "freezegun" },
+    { name = "marshmallow" },
+    { name = "mypy-extensions" },
+    { name = "packaging" },
+    { name = "pathspec" },
+    { name = "pip" },
+    { name = "platformdirs" },
+    { name = "pluggy" },
+    { name = "psycopg2-binary" },
+    { name = "pycparser" },
+    { name = "pygments" },
+    { name = "pyjwt" },
+    { name = "pytest" },
+    { name = "python-dateutil" },
+    { name = "python-dotenv" },
+    { name = "redis" },
+    { name = "requests" },
+    { name = "ruff" },
+    { name = "urllib3" },
+    { name = "werkzeug" },
+    { name = "wheel" },
+]
+
+[package.optional-dependencies]
+dev = [
+    { name = "black" },
+    { name = "pytest" },
+    { name = "pytest-cov" },
+    { name = "ruff" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "black", marker = "extra == 'dev'", specifier = ">=24.0" },
+    { name = "flask", specifier = ">=3.0" },
+    { name = "flask-bcrypt", specifier = ">=1.0.1" },
+    { name = "flask-jwt", specifier = ">=0.2.0" },
+    { name = "flask-jwt-extended", specifier = ">=4.6" },
+    { name = "flask-mail", specifier = ">=0.10.0" },
+    { name = "flask-migrate", specifier = ">=4.1.0" },
+    { name = "flask-sqlalchemy", specifier = ">=3.1" },
+    { name = "freezegun", specifier = ">=1.5.5" },
+    { name = "marshmallow", specifier = ">=4.0.1" },
+    { name = "mypy-extensions", specifier = ">=1.1.0" },
+    { name = "packaging", specifier = ">=25.0" },
+    { name = "pathspec", specifier = ">=0.12.1" },
+    { name = "pip", specifier = ">=25.2" },
+    { name = "platformdirs", specifier = ">=4.3.8" },
+    { name = "pluggy", specifier = ">=1.6.0" },
+    { name = "psycopg2-binary", specifier = ">=2.9" },
+    { name = "pycparser", specifier = ">=2.23" },
+    { name = "pygments", specifier = ">=2.19.2" },
+    { name = "pyjwt", specifier = ">=2.10.1" },
+    { name = "pytest", specifier = ">=8.4.1" },
+    { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0" },
+    { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=4.1" },
+    { name = "python-dateutil", specifier = ">=2.9.0.post0" },
+    { name = "python-dotenv", specifier = ">=1.0" },
+    { name = "redis", specifier = ">=6.4.0" },
+    { name = "requests", specifier = ">=2.32.5" },
+    { name = "ruff", specifier = ">=0.12.9" },
+    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.4" },
+    { name = "urllib3", specifier = ">=2.5.0" },
+    { name = "werkzeug", specifier = ">=3.1.3" },
+    { name = "wheel", specifier = ">=0.45.1" },
+]
+provides-extras = ["dev"]
 
 [[package]]
 name = "tomli"

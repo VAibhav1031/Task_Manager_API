@@ -1,5 +1,5 @@
 from flask import jsonify, request
-from werkzeug.exception import RequestEntityTooLarge
+from werkzeug.exceptions import RequestEntityTooLarge
 import uuid
 
 central_registry = {

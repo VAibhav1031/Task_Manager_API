@@ -1,8 +1,8 @@
-"""initial migration
+"""Auto migration
 
-Revision ID: d444364ca899
-Revises: 
-Create Date: 2025-09-24 19:22:59.688204
+Revision ID: c44629d1e0c5
+Revises: bf99cda9442b
+Create Date: 2025-10-11 20:30:06.188401
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'd444364ca899'
-down_revision = None
+revision = 'c44629d1e0c5'
+down_revision = 'bf99cda9442b'
 branch_labels = None
 depends_on = None
 
@@ -29,8 +29,8 @@ def upgrade():
     )
     op.create_table('password_resets',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('reset_token', sa.String(length=255), nullable=False),
-    sa.Column('expired_at', sa.DateTime(), nullable=False),
+    sa.Column('reset_token', sa.String(length=512), nullable=False),
+    sa.Column('expired_at', sa.DateTime(timezone=True), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
     sa.Column('used', sa.Boolean(), nullable=True),
     sa.Column('attempts', sa.Integer(), nullable=False),
@@ -43,6 +43,8 @@ def upgrade():
     sa.Column('title', sa.String(length=60), nullable=False),
     sa.Column('description', sa.Text(), nullable=True),
     sa.Column('completion', sa.Boolean(), nullable=True),
+    sa.Column('priority', sa.Enum('low', 'medium', 'high', name='priority_enum'), nullable=False),
+    sa.Column('due_date', sa.DateTime(timezone=True), nullable=True),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
     sa.Column('updated_at', sa.DateTime(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),

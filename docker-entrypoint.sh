@@ -11,21 +11,29 @@ done
 
 echo "Database is ready!!"
 
-if ! [ -d task_app/migrations/ ]; then
-  echo "Path doesn't exist: migrations."
-  echo "Creating...."
-  mkdir -p /task_app/migrations/
-fi
-echo "Done."
+export PGPASSWORD=${DEV_DB_PASSWORD}
+# # cause flask  app container is different then the dev-db , so for the psql command in postgres  connection to local peer is Trust no password
+# # but since flask app contaiener run on different ip (network) so it need the TCP for connection for that defualt is md5 which is password requirement
 
-if [ -z "$(ls -A migrations/versions 2>/dev/null)" ]; then
-  echo "Initial migration...."
+echo "Setting up...."
+if [ -d migrations/versions ] && [ "$(ls -A migrations/versions)" ]; then
+
+  echo "checking model SYNC..."
+  if ! psql -h dev-db --port=5432 -U ${DEV_DB_USER} -d ${DEV_DB_NAME} -tAc "SELECT 1 FROM information_schema.tables WHERE table_name='alembi_version'" | grep -q 1; then
+    flask --app run.py db stamp head
+  fi
+
+  echo "Checking for model Changes"
+  flask --app run.py db migrate -m "Auto migration" || echo "No model changes detected"
+  flask --app run.py db upgrade
+else
+  echo "No migration folder - intializing...."
+  echo "Creating...."
+
   flask --app run.py db init
   flask --app run.py db migrate -m "initial migration"
+  flask --app run.py db upgrade
 fi
-
-echo "Running Flask database migration"
-flask --app run.py db upgrade
 
 echo "Startting the flask application...."
 exec uv run python run.py

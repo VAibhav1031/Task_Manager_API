@@ -1,4 +1,11 @@
 from marshmallow import Schema, fields, validate, validates_schema, ValidationError
+from enum import Enum
+
+
+class Priority(Enum):
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
 
 
 class RegisterSchema(Schema):
@@ -18,11 +25,14 @@ class LoginSchema(Schema):
             raise ValidationError("Either email or username is required")
 
 
-# i think  i neeed to separate this , USer must have some flexibility here , for updating any field  int he  task
 class AddTask(Schema):
     title = fields.Str(required=True)
     description = fields.Str(required=True)
     completion = fields.Boolean(required=False)
+    due_date = fields.DateTime(required=False)
+    priority = fields.Str(
+        required=False, validate=validate.OneOf([p.value for p in Priority])
+    )  # validate  will test that value should be from this list only
 
     @validates_schema
     def validate_identifier(self, data, **kwargs):
@@ -34,6 +44,10 @@ class UpdateTask(Schema):
     title = fields.Str(required=False)
     description = fields.Str(required=False)
     completion = fields.Boolean(required=False)
+    due_date = fields.DateTime(required=False)
+    priority = fields.Str(
+        required=False, validate=validate.OneOf([p.value for p in Priority])
+    )
 
     @validates_schema
     def validate_identifier(self, data, **kwargs):
