@@ -16,6 +16,4 @@ instance/
 # setup files 
 *.egg-info
 
-# USed this so that while merging you wont get this file there 
-docker-compose.dev.yaml
-*.dev.yaml
+
