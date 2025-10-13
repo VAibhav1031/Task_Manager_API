@@ -47,6 +47,8 @@ class DevConfig(Config):
 
     USE_FAKE_MAIL = True
     DEBUG = True
+    LOGGING_VERBOSE = True
+    LOGGING_QUIET = False
 
 
 class ProdConfig(Config):
@@ -77,6 +79,8 @@ class ProdConfig(Config):
         )
 
     DEBUG = False
+    LOGGING_VERBOSE = False
+    LOGGING_QUIET = True
 
 
 class TestConfig(Config):
@@ -84,6 +88,8 @@ class TestConfig(Config):
 
     USE_FAKE_MAIL = True
     DEBUG = True
+    LOGGING_VERBOSE = True
+    LOGGING_QUIET = False
 
 
 config = {

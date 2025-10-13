@@ -15,16 +15,16 @@ services:
       - .env
     # We now pass the DEV_DB_* variables directly, matching the config.py.
     environment:
-      DEV_DB_HOST: dev-db
-      DEV_DB_USER: ${DEV_DB_USER}
-      DEV_DB_PASSWORD: ${DEV_DB_PASSWORD}
-      DEV_DB_NAME: ${DEV_DB_NAME}
-      DEV_DB_PORT: 5432
+      DB_HOST: prod-db
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      DB_PORT: 5432
       REDIS_HOST: redis
       REDIS_PORT: 6379
     
     depends_on:
-      dev-db:
+      prod-db:
         condition: service_healthy
 
       redis:
@@ -47,13 +47,13 @@ services:
     # command: sh -c "flask --app run.py db upgrade && uv run python run.py"
 
     entrypoint: ./docker-entrypoint.sh
-  dev-db:
+  prod-db:
     image: postgres:17-alpine
     
     environment:
-      POSTGRES_USER: ${DEV_DB_USER}
-      POSTGRES_PASSWORD: ${DEV_DB_PASSWORD}
-      POSTGRES_DB: ${DEV_DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     
     # All data will persist even if you stop the container.
     volumes:
