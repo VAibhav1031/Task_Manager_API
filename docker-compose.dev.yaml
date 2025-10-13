@@ -24,7 +24,7 @@ services:
       REDIS_PORT: 6379
     
     depends_on:
-      prod-db:
+      dev-db:
         condition: service_healthy
 
       redis:
