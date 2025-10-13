@@ -13,7 +13,7 @@ services:
     # All your required elements are in the .env so you load that
     env_file:
       - .env
-    # We now pass the DEV_DB_* variables directly, matching the config.py.
+    # We now pass the DB_* variables directly, matching the config.py.
     environment:
       DB_HOST: prod-db
       DB_USER: ${DB_USER}
@@ -62,7 +62,7 @@ services:
     # This health check tells Docker Compose to wait until the database is ready
     healthcheck:
 
-      test: ["CMD-SHELL", "pg_isready -U ${DEV_DB_USER}  -d ${DEV_DB_NAME} "]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}  -d ${DB_NAME} "]
       interval: 5s
       timeout: 5s
       retries: 10
