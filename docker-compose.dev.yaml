@@ -18,7 +18,7 @@ services:
       DEV_DB_HOST: dev-db
       DEV_DB_USER: ${DEV_DB_USER}
       DEV_DB_PASSWORD: ${DEV_DB_PASSWORD}
-      DEV_DB_NAME: ${DB_NAME}
+      DEV_DB_NAME: ${DEV_DB_NAME}
       DEV_DB_PORT: 5432
       REDIS_HOST: redis
       REDIS_PORT: 6379
