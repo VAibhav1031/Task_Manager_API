@@ -110,7 +110,7 @@ def get_tasks_all(user_id: int):
                             "created_at": t.created_at.astimezone(
                                 timezone.utc
                             ).strftime("%Y-%m-%dT%H:%M:%SZ"),
-                            "priority": t.priority,
+                            "priority": str(t.priority.value),
                             "due_date": t.due_date,
                         }
                         for t in tasks

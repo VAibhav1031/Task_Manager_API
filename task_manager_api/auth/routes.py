@@ -128,7 +128,7 @@ def login():
     else:
         user = User.query.filter_by(username=data["username"]).first()
         if not user:
-            logger.error(f"User not found with email = {data['email']}")
+            logger.error(f"User not found with email = {data['username']}")
             return not_found()
         logger.info(f"User used username={data['username']}")
 
