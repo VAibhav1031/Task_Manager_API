@@ -14,11 +14,15 @@ migrate = Migrate()
 
 
 def create_app(config_class=None, verbose=False, quiet=False, log_to_file=True):
-    setup_logging(verbose=verbose, quiet=quiet, log_to_file=log_to_file)
-
     app = Flask(__name__)
     # here we are creating dynamic attribute
     app.config.from_object(get_config())
+
+    setup_logging(
+        verbose=app.config.get("LOGGING_VERBOSE"),
+        quiet=app.config.get("LOGGING_QUIET"),
+        log_to_file=log_to_file,
+    )
 
     logger = logging.getLogger(__name__)
     logger.info("Flask app created and logging initialized")

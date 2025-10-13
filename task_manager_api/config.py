@@ -38,8 +38,7 @@ class DevConfig(Config):
     ##################################
 
     SQLALCHEMY_DATABASE_URI = (
-        f"postgresql+psycopg2://{DB_USER}:{
-            DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+        f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
@@ -47,6 +46,8 @@ class DevConfig(Config):
 
     USE_FAKE_MAIL = True
     DEBUG = True
+    LOGGING_VERBOSE = True
+    LOGGING_QUIET = False
 
 
 class ProdConfig(Config):
@@ -65,8 +66,7 @@ class ProdConfig(Config):
     ##################################
 
     SQLALCHEMY_DATABASE_URI = (
-        f"postgresql+psycopg2://{DB_USER}:{
-            DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+        f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = os.environ.get("SECRET_KEY")
@@ -77,6 +77,8 @@ class ProdConfig(Config):
         )
 
     DEBUG = False
+    LOGGING_VERBOSE = False
+    LOGGING_QUIET = True
 
 
 class TestConfig(Config):
@@ -84,6 +86,8 @@ class TestConfig(Config):
 
     USE_FAKE_MAIL = True
     DEBUG = True
+    LOGGING_VERBOSE = True
+    LOGGING_QUIET = False
 
 
 config = {
