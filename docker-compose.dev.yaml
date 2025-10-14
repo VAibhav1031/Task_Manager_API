@@ -46,7 +46,7 @@ services:
     # This command runs the database migrations first, then starts the application.
     # command: sh -c "flask --app run.py db upgrade && uv run python run.py"
 
-    entrypoint: ./docker-entrypoint.sh
+    entrypoint: ./docker-entrypoint.dev.sh
   dev-db:
     image: postgres:17-alpine
     
