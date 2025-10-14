@@ -8,7 +8,7 @@ services:
 
     # The ports mapping, that your application needed when you start
     ports:
-      - "5555:5555"
+      - "5556:5555"
     
     # All your required elements are in the .env so you load that
     env_file:
