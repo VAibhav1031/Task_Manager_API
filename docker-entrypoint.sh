@@ -23,9 +23,13 @@ if [ -d migrations/versions ] && [ "$(ls -A migrations/versions)" ]; then
     flask --app run.py db stamp head
   fi
 
-  echo "Checking for model Changes"
-  flask --app run.py db migrate -m "Auto migration" || echo "No model changes detected"
-  flask --app run.py db upgrade
+  if ! flask db heads | grep -q $(psql -h $DB_HOST ... -c "SELECT version_num FROM alembic_version" -tA); then
+    echo "Migration version mismatch, applying upgrade..."
+    flask db upgrade
+  else
+    echo "DB already up-to-date. Skipping upgrade."
+  fi
+
 else
   echo "No migration folder - intializing...."
   echo "Creating...."
