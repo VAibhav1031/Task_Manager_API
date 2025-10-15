@@ -3,9 +3,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    volumes:
-       - ./migrations:/task_app/migrations 
-
     # The ports mapping, that your application needed when you start
     ports:
       - "5556:5555"
