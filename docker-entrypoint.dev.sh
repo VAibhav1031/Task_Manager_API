@@ -18,14 +18,18 @@ export PGPASSWORD=${DEV_DB_PASSWORD}
 echo "Setting up...."
 if [ -d migrations/versions ] && [ "$(ls -A migrations/versions)" ]; then
 
-  echo "checking model SYNC..."
-  if ! psql -h dev-db --port=5432 -U ${DEV_DB_USER} -d ${DEV_DB_NAME} -tAc "SELECT 1 FROM information_schema.tables WHERE table_name='alembi_version'" | grep -q 1; then
+  if ! psql -h prod-db --port=5432 -U ${DB_USER} -d ${DB_NAME} -tAc "SELECT 1 FROM information_schema.tables WHERE table_name='alembic_version'" | grep -q 1; then
+    echo "checking model SYNC..."
     flask --app run.py db stamp head
   fi
 
-  echo "Checking for model Changes"
-  flask --app run.py db migrate -m "Auto migration" || echo "No model changes detected"
-  flask --app run.py db upgrade
+  if ! flask db heads | grep -q $(psql -h prod-db ... -c "SELECT version_num FROM alembic_version" -tA); then
+    echo "Migration version mismatch, applying upgrade..."
+    flask db upgrade
+  else
+    echo "DB already up-to-date. Skipping upgrade."
+  fi
+
 else
   echo "No migration folder - intializing...."
   echo "Creating...."
