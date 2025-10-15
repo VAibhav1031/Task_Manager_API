@@ -18,7 +18,7 @@ export PGPASSWORD=${DB_PASSWORD}
 echo "Setting up...."
 if [ -d migrations/versions ] && [ "$(ls -A migrations/versions)" ]; then
 
-  if ! psql -h prod-db --port=5432 -U ${DB_USER} -d ${DB_NAME} -tAc "SELECT 1 FROM information_schema.tables WHERE table_name='alembi_version'" | grep -q 1; then
+  if ! psql -h prod-db --port=5432 -U ${DB_USER} -d ${DB_NAME} -tAc "SELECT 1 FROM information_schema.tables WHERE table_name='alembic_version'" | grep -q 1; then
     echo "checking model SYNC..."
     flask --app run.py db stamp head
   fi
