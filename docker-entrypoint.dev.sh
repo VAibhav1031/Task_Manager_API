@@ -20,15 +20,18 @@ if [ -d migrations/versions ] && [ "$(ls -A migrations/versions)" ]; then
 
   if ! psql -h prod-db --port=5432 -U ${DB_USER} -d ${DB_NAME} -tAc "SELECT 1 FROM information_schema.tables WHERE table_name='alembic_version'" | grep -q 1; then
     echo "checking model SYNC..."
-    flask --app run.py db stamp head
+    flask --app run.py db upgrade
   fi
 
-  if ! flask db heads | grep -q $(psql -h prod-db ... -c "SELECT version_num FROM alembic_version" -tA); then
+  flask --app run.py db migrate -m "Auto_migration $(date + %s)" || echo "No changes detected"
+
+  if ! flask -app run.py db heads | grep -q $(psql -h prod-db ... -c "SELECT version_num FROM alembic_version" -tA); then
     echo "Migration version mismatch, applying upgrade..."
-    flask db upgrade
+    flask --app run.py db upgrade
   else
     echo "DB already up-to-date. Skipping upgrade."
   fi
+  #
 
 else
   echo "No migration folder - intializing...."
@@ -43,6 +46,3 @@ echo "Startting the flask application...."
 exec uv run python run.py
 
 # flow is  like this   check_if_db_is_ready -> check_migration_folder -> if the migrations script not there -> create_initials & migrate -> db upgrade --> run application
-
-# few point if  i make changes in the migration folder in the host and  run the application again and all
-# when it is running and when not
