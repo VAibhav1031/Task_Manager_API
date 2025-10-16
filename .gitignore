@@ -20,3 +20,7 @@ instance/
 # USed this so that while merging you wont get this file there 
 docker-compose.dev.yaml
 *.dev.yaml
+*.dev.sh
+
+# bannnig the Dockefile.dev 
+Dockefile.env
