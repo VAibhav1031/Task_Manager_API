@@ -2,7 +2,7 @@ services:
   app:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.prod
     # The ports mapping, that your application needed when you start
     ports:
       - "5556:5555"
