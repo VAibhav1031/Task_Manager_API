@@ -10,15 +10,10 @@ RUN apt-get update && apt-get install -y postgresql-client && \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN chmod +x docker-entrypoint.sh 
+RUN chmod +x docker-entrypoint.prod.sh 
 
 EXPOSE 5555
 
-ENTRYPOINT ["./docker-entrypoint.sh"]
-
-# ENTRYPOINT ["uv","run"]
-#
-# CMD ["python","run.py"]
-#
+ENTRYPOINT ["./docker-entrypoint.prod.sh"]
 
 

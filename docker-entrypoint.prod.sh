@@ -17,32 +17,39 @@ export PGPASSWORD=${DB_PASSWORD}
 
 echo "Setting up...."
 if [ -d migrations/versions ] && [ "$(ls -A migrations/versions)" ]; then
+  if ! psql -h prod-db --port=5432 -U ${DB_USER} -d ${DB_NAME} -tAc "SELECT 1 FROM information_schema.tables WHERE table_name='alembic_version';" | grep -q 1; then
+    echo "No alembic_version table found, stamping head..."
+    flask --app run.py db upgrade
 
-  if ! psql -h prod-db --port=5432 -U ${DB_USER} -d ${DB_NAME} -tAc "SELECT 1 FROM information_schema.tables WHERE table_name='alembic_version'" | grep -q 1; then
-    echo "checking model SYNC..."
-    flask --app run.py db stamp head
-  fi
-
-  if ! flask db heads | grep -q $(psql -h prod-db ... -c "SELECT version_num FROM alembic_version" -tA); then
-    echo "Migration version mismatch, applying upgrade..."
-    flask db upgrade
   else
-    echo "DB already up-to-date. Skipping upgrade."
+
+    if psql -h prod-db --port=5432 -U ${DB_USER} -d ${DB_NAME} -tAc "SELECT to_regclass('alembic_version');" | grep -q 'alembic_version'; then
+
+      DB_VERSION=$(psql -h prod-db --port=5432 -U ${DB_USER} -d ${DB_NAME} -tAc "SELECT version_num FROM alembic_version LIMIT 1;")
+    else
+      DB_VERSION="none"
+    fi
+
+    HEAD_VERSION=$(flask --app run.py db heads | awk '{print $1}')
+
+    echo "head_version : $HEAD_VERSION"
+
+    if [ "$DB_VERSION" != "$HEAD_VERSION" ]; then
+      echo "Migration version mismatch ($DB_VERSION -> $HEAD_VERSION), applying upgrade..."
+      flask --app run.py db upgrade
+
+    else
+      echo "DB already up-to-date. Skipping upgrade."
+    fi
+
   fi
 
 else
   echo "No migration folder - intializing...."
-  echo "Creating...."
-
-  flask --app run.py db init
-  flask --app run.py db migrate -m "initial migration"
-  flask --app run.py db upgrade
+  echo "This would never happen in the production"
 fi
 
 echo "Startting the flask application...."
 exec uv run gunicorn -w 4 -b 0.0.0.0:5555 run:app
 
 # flow is  like this   check_if_db_is_ready -> check_migration_folder -> if the migrations script not there -> create_initials & migrate -> db upgrade --> run application
-
-# few point if  i make changes in the migration folder in the host and  run the application again and all
-# when it is running and when not
