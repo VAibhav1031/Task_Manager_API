@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile.prod
     # The ports mapping, that your application needed when you start
     ports:
-      - "5556:5555"
+      - "127.0.0.1:5556:5555"
     
     # All your required elements are in the .env so you load that
     env_file:
