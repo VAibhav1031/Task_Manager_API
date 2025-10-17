@@ -44,7 +44,7 @@ services:
     # command: sh -c "flask --app run.py db upgrade && uv run python run.py"
 
   prod-db:
-    
+    image: postgres:17-alpine
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
