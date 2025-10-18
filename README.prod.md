@@ -2,7 +2,8 @@
 
 A fully REST-based API service for task management with authentication, featuring signup, login, and password reset with OTP email verification.
 Built following RESTful design principles with JWT-secured endpoints and consistent error handling.
-**API is live** -> `api.necromancer.dpdns.org`  you can   test directly with ***curl*** or ***postman***
+
+#### **API is live** -> `api.necromancer.dpdns.org`  you can   test directly with ***curl*** or ***postman***
 ---
 
 ## **Features**
