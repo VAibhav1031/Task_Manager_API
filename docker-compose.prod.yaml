@@ -7,6 +7,7 @@ services:
     ports:
       - "127.0.0.1:5556:5555"
     
+    restart: always
     # All your required elements are in the .env so you load that
     env_file:
       - .env
@@ -53,7 +54,8 @@ services:
     # All data will persist even if you stop the container.
     volumes:
       - task_app_data:/var/lib/postgresql/data
-    
+
+    restart: always
     # This health check tells Docker Compose to wait until the database is ready
     healthcheck:
 
@@ -70,6 +72,7 @@ services:
     ports: 
       - "6380:6379"
 
+    restart: always
     volumes:
       - redis_data:/data 
 
