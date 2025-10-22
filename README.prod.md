@@ -46,7 +46,7 @@ The application supports multiple environments for flexibility:
 
 ## **Installation & Usage**
 
-### 🐳 Using Docker (Recommended)
+### Using Docker (Recommended)
 
 To spin up the entire stack (Flask + PostgreSQL + Redis):
 
@@ -112,7 +112,7 @@ Content-Type: application/json
 
 ### **Example:**
 
-#### singup 
+#### 1. singup 
 
 **Request:**
 
@@ -148,7 +148,7 @@ POST /api/auth/signup
 ```
 
 
-#### login 
+#### 2. login 
 
 **Request:**
 
@@ -183,7 +183,7 @@ POST /api/auth/login
 ```
 
 
-#### Create a Task
+#### 3. Create a Task
 
 
 **Request:**
@@ -220,7 +220,7 @@ curl -X POST -H "Content-Type: application/json" \
 https://api.necromancer.dpdns.org/api/tasks/
 ```
 
-#### Retrieve the task (all created one, it follows the pagination)
+#### 4. Retrieve the task (all created one, it follows the pagination)
 
 **Request:**
 
@@ -228,7 +228,7 @@ https://api.necromancer.dpdns.org/api/tasks/
 GET /api/tasks
 ```
 
-Header:
+**Header**:
 "Authorization: Bearer <token_given_during_login>"
 
 **Response (201 Created):**
@@ -263,7 +263,7 @@ https://api.necromancer.dpdns.org/api/tasks/
 ```
 
 ---
-
+---
 ###  **Incorrect Example**
 
 **Bad Request Body:**
@@ -307,47 +307,47 @@ Task_Manager_API/
 ├── run.py
 ├── README.prod.md
 │
-├── task_manager_api/              # Main application package
+├── task_manager_api/            
 │   ├── __init__.py
-│   ├── config.py                  # Environment configurations
-│   ├── error_handler.py           # Global error handling
-│   ├── logging_config.py          # Logging setup
-│   ├── models.py                  # SQLAlchemy models
-│   ├── schemas.py                 # Marshmallow schemas
-│   ├── utils.py                   # Helper utilities
+│   ├── config.py                  
+│   ├── error_handler.py          
+│   ├── logging_config.py          
+│   ├── models.py                 
+│   ├── schemas.py                 
+│   ├── utils.py                  
 │   │
-│   ├── auth/                      # Authentication module
-│   │   ├── routes.py              # Signup, login, OTP verification routes
+│   ├── auth/                      
+│   │   ├── routes.py              
 │   │   └── __init__.py
 │   │
-│   ├── tasks/                     # Task CRUD module
+│   ├── tasks/                     
 │   │   ├── routes.py
 │   │   ├── tasks_utils.py
 │   │   └── __init__.py
 │   │
-│   ├── mail_service/              # Email OTP service
+│   ├── mail_service/              
 │   │   ├── fake_service.py
 │   │   ├── real_service.py
 │   │   └── __init__.py
 │   │
-│   ├── middleware/                # Rate limiting & IP ban logic
+│   ├── middleware/                
 │   │   ├── rate_limiter.py
 │   │   └── __init__.py
 │   │
-│   └── templates/                 # Email templates
+│   └── templates/                 
 │       ├── reset_password.html
 │       └── reset_password.txt
 │
-├── migrations/                    # Alembic database migrations
+├── migrations/                    
 │   ├── env.py
 │   └── versions/
 │
-├── tests/                         # Unit tests (Pytest)
+├── tests/                         
 │   ├── test_auth.py
 │   ├── test_task.py
 │   └── test_reset_password.py
 │
-└── uv.lock                        # Dependency lock file
+└── uv.lock                       
 ```
 > More Detailed Documentation is under development..
 ---
@@ -355,3 +355,4 @@ Task_Manager_API/
 
 Pull requests are welcome!
 If you find an issue, please open one under the “Issues” tab describing the bug or enhancement.
+
