@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Task Manager API Docs</title>
+
+  <!--  Swagger UI CSS (from CDN) -->
+  <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist/swagger-ui.css" />
+
+  <style>
+    body {
+      margin: 0;
+      background: #fafafa;
+    }
+  </style>
+</head>
+<body>
+  <!-- This div will hold the Swagger UI -->
+  <div id="swagger-ui"></div>
+
+  <!--  Swagger UI JS (from CDN) -->
+  <script src="https://unpkg.com/swagger-ui-dist/swagger-ui-bundle.js"></script>
+
+  <!--  Initialize Swagger UI -->
+  <script>
+    const ui = SwaggerUIBundle({
+      url: "/static/openapi.yaml",    // your OpenAPI spec route
+      dom_id: "#swagger-ui",
+      deepLinking: true,
+    });
+  </script>
+</body>
+</html>
+

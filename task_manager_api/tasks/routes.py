@@ -52,7 +52,8 @@ def get_tasks_all(user_id: int):
             )
 
         except Exception as e:
-            logger.error(f"No query is returned from  the filter_manager function {e}")
+            logger.error(
+                f"No query is returned from  the filter_manager function {e}")
             return internal_server_error(msg=f"{e}")
 
         #####################################
@@ -140,7 +141,8 @@ def get_task(user_id: int, task_id: int):
     logger.info("GET /api/tasks requested for get_task...")
 
     if not task:
-        logger.error(f"No Task found with task_id = {task_id}, user_id={user_id}")
+        logger.error(f"No Task found with task_id = {
+                     task_id}, user_id={user_id}")
         return not_found("No Task found")
     return jsonify(
         {
@@ -265,8 +267,10 @@ def delete(user_id: int, task_id: int):
         return forbidden_access("Forbidden,Not authorized to access other Data")
     db.session.delete(task)
     db.session.commit()
-    logger.info(f"Deleted Task: task with task_id={task_id}and user_id={user_id}")
-    return jsonify({"message": f"Task {id} deleted"})
+    logger.info(f"Deleted Task: task with task_id={
+                task_id}and user_id={user_id}")
+
+    return jsonify({"message": f"Task {id} deleted"}), 200
 
 
 @tasks.route("/tasks", methods=["DELETE"])
