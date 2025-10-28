@@ -19,7 +19,7 @@ security:
   - bearerAuth: []
 
 paths:
-  tasks:
+  /tasks:
     get:
       summary: Get all tasks (with pagination)
       tags: [Tasks]
