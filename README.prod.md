@@ -349,7 +349,14 @@ Task_Manager_API/
 │
 └── uv.lock                       
 ```
-> More Detailed Documentation is under development..
+
+## For interactive and Static Documentaion :
+- <a href="https://VAibhav1031.github.io/Task_Manager_API/task_manager_api/templates/static_doc_template/index.html" target="_blank">
+    Open static documentation page
+  </a>
+
+- For interactive you can go to the live api domain  with **/docs** endpoint at the end like this `api.necromancer.dpdns.org/docs` , you will see swagger based interactive documentation
+
 ---
 ## **Contributions**
 
