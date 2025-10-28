@@ -1,0 +1,507 @@
+openapi: 3.0.3
+info:
+  title: Task Manager API
+  description: |
+    A fully REST-based API service for task management with authentication, featuring signup, login, and password reset with OTP email verification.
+
+    Built following RESTful design principles with JWT-secured endpoints and consistent error handling.
+    Some useful links:
+      - [The  repository](https://github.com/VAibhav1031/Task_Manager_API)
+      - [The source  API  definition of the Task_Manager_API ](https://github.com/VAibhav1031/Task_Manager_API/blob/main/static/openapi.yaml)
+
+versions: 1.0.0
+servers:
+  - url: https://api.necromancer.dpdns.org/api
+  - url: http://127.0.0.1:5555/api
+
+security:
+  - bearerAuth: []
+
+paths:
+  tasks:
+    get:
+      summary: Get all tasks (with pagination)
+      tags: [Tasks]
+      responses:
+        '200':
+          description: A list of tasks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Task'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessageInternalServer'
+
+    post:
+      summary: Add a new task
+      tags: [Tasks]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewTask'
+      responses:
+        '201':
+          description: Task created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessMessageAdd'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessageBadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessageUnauthorized'
+
+    delete:
+      summary: Delete all tasks
+      tags: [Tasks]
+      responses:
+        '200':
+          description: All tasks deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessMessageDeleted'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessageUnauthorized'
+
+  /tasks/{id}:
+    get:
+      summary: Get a task by ID
+      tags: [Tasks]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Task retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '404':
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessageNotFound'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessageUnauthorized'
+
+    put:
+      summary: Update a task by ID
+      tags: [Tasks]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewTask'
+      responses:
+        '200':
+          description: Task updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessMessageUpdated'
+        '404':
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessageNotFound'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessageUnauthorized'
+
+    delete:
+      summary: Delete a task by ID
+      tags: [Tasks]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Task deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessMessageDeleted'
+        '404':
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessageNotFound'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessageUnauthorized'
+
+  /auth/signup:
+    post:
+      summary: Register a new user
+      tags: [Auth]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthSignup'
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthSuccessSignup'
+        '400':
+          description: Invalid data or user already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessageBadRequest'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessageInternalServer'
+
+  /auth/login:
+    post:
+      summary: Login with username or email
+      tags: [Auth]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthLogin'
+      responses:
+        '200':
+          description: Login successful, returns JWT token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthSuccessLogin'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessageUnauthorized'
+        '429':
+          description: Too many login attempts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessageTooManyRequests'
+
+  /auth/forget-password:
+    post:
+      summary: Send OTP to registered email for password reset
+      tags: [Auth]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ForgetPassword'
+      responses:
+        '200':
+          description: OTP token sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForgetPasswordSuccess'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessageNotFound'
+
+  /auth/verify-otp:
+    post:
+      summary: Verify OTP sent to email and generate reset token
+      tags: [Auth]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyOtp'
+      responses:
+        '200':
+          description: OTP verified successfully, reset token issued
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResetTokenResponse'
+        '401':
+          description: Invalid OTP
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessageUnauthorized'
+        '403':
+          description: Forbidden (email mismatch)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessageForbidden'
+
+  /auth/reset-password:
+    post:
+      summary: Reset user password using reset token
+      tags: [Auth]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPassword'
+      responses:
+        '200':
+          description: Password reset successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessMessageGeneric'
+        '400':
+          description: Invalid input or password reuse detected
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessageBadRequest'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessageNotFound'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Enter JWT token as `Bearer <your_token>`
+
+  schemas:
+    Task:
+      type: object
+      properties:
+        id: { type: integer }
+        title: { type: string, example: "Buy groceries" }
+        description: { type: string, example: "Buy milk, eggs, and bread" }
+        completed: { type: boolean, default: false }
+        due_date: 
+          type: string
+          format: date-time
+          nullable: true 
+        priority:
+          type: string
+          enum: [low, medium, high]
+          default: medium
+
+    NewTask:
+      type: object
+      required: [title, description]
+      properties:
+        title: 
+          type: string 
+          required: true
+        description: 
+          type: string 
+          required: true
+        due_date: 
+          type: string
+          format: date-time
+          nullable: true 
+          default: null
+        priority:
+          type: string
+          enum: [low, medium, high]
+          default: medium
+
+    SuccessMessageAdd:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Task added successfully with id 42"
+
+    SuccessMessageUpdated:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Task updated successfully"
+
+    SuccessMessageDeleted:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Task deleted successfully"
+
+    SuccessMessageGeneric:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Operation completed successfully"
+
+    AuthSignup:
+      type: object
+      required: [username, email, password]
+      properties:
+        username: { type: string, example: "vaibhav" }
+        email: { type: string, example: "vaibhav@example.com" }
+        password: { type: string, example: "mypassword123" }
+
+    AuthSuccessSignup:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "vaibhav user created successfully"
+
+    AuthLogin:
+      type: object
+      properties:
+        email: { type: string, example: "vaibhav@example.com" }
+        username: { type: string, example: "vaibhav" }
+        password: { type: string, example: "mypassword123" }
+
+    AuthSuccessLogin:
+      type: object
+      properties:
+        token:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+    ForgetPassword:
+      type: object
+      required: [email]
+      properties:
+        email: { type: string, example: "vaibhav@example.com" }
+
+    ForgetPasswordSuccess:
+      type: object
+      properties:
+        otp_token:
+          type: string
+          example: "otp_eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+    VerifyOtp:
+      type: object
+      required: [email, otp]
+      properties:
+        email: { type: string, example: "vaibhav@example.com" }
+        otp: { type: string, example: "542317" }
+
+    ResetTokenResponse:
+      type: object
+      properties:
+        reset_token:
+          type: string
+          example: "reset_eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+    ResetPassword:
+      type: object
+      required: [new_password]
+      properties:
+        new_password:
+          type: string
+          example: "MyNewSecurePassword@123"
+
+    ErrorMessageNotFound:
+      type: object
+      properties:
+        code: { type: string, example: "NOT_FOUND" }
+        status: { type: integer, example: 404 }
+        message: { type: string, example: "Resource not found" }
+
+    ErrorMessageUnauthorized:
+      type: object
+      properties:
+        code: { type: string, example: "UNAUTHORIZED" }
+        status: { type: integer, example: 401 }
+        message: { type: string, example: "Invalid credentials" }
+
+    ErrorMessageForbidden:
+      type: object
+      properties:
+        code: { type: string, example: "FORBIDDEN" }
+        status: { type: integer, example: 403 }
+        message: { type: string, example: "Access denied" }
+
+    ErrorMessageTooManyRequests:
+      type: object
+      properties:
+        code: { type: string, example: "TOO_MANY_REQUESTS" }
+        status: { type: integer, example: 429 }
+        message: { type: string, example: "Rate limit exceeded" }
+
+    ErrorMessageBadRequest:
+      type: object
+      properties:
+        code: { type: string, example: "BAD_REQUEST" }
+        status: { type: integer, example: 400 }
+        message: { type: string, example: "Invalid input" }
+
+    ErrorMessageInternalServer:
+      type: object
+      properties:
+        code: { type: string, example: "INTERNAL_ERROR" }
+        status: { type: integer, example: 500 }
+        message: { type: string, example: "Internal Server Error" }

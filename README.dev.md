@@ -27,6 +27,12 @@ The application uses separate configurations for different environments:
 
 Each configuration has its own database settings and feature flags defined in separate blueprint classes.
 
+
+
+#### Static & interactive Documentation webpage 
+- [Documentation_static->](./task_manager_api/templates/static_documentation.html)
+- `NEW` endpoint for interactive documentation (using swagger-ui) -> **/docs**
+
 ## Project Structure:
 
 ```
@@ -90,7 +96,7 @@ Custom logging configuration using Python's logging library with dictConfig:
 ## Database Migration:
 
 - **Development**: Managed by Alembic through Docker scripts
-- **Testing**: Uses SQLite in-memory (no migration needed)
+- **Testing**: Uses SQLite in-memory (no migration needed), Curl for persistent db required test's
 - **Production**: Alembic migration management
 
 ## Usage:

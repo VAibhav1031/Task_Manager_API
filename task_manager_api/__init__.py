@@ -46,9 +46,11 @@ def create_app(config_class=None, verbose=False, quiet=False, log_to_file=True):
 
     from task_manager_api.auth.routes import auth
     from task_manager_api.tasks.routes import tasks
+    from task_manager_api.docs.routes import docs
 
     app.register_blueprint(auth)
     app.register_blueprint(tasks)
+    app.register_blueprint(docs)
 
     app.config["Max_Content_Length"] = 2 * 1024 * 1024
 
