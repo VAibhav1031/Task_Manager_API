@@ -9,7 +9,7 @@ info:
       - [The  repository](https://github.com/VAibhav1031/Task_Manager_API)
       - [The source  API  definition of the Task_Manager_API ](https://github.com/VAibhav1031/Task_Manager_API/blob/development/task_manager_api/static/openapi.yaml)
 
-versions: 1.0.0
+  versions: 1.0.0
 servers:
   - url: https://api.necromancer.dpdns.org/api
   - url: http://127.0.0.1:5555/api
