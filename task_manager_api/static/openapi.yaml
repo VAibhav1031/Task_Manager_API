@@ -5,6 +5,7 @@ info:
     A fully REST-based API service for task management with authentication, featuring signup, login, and password reset with OTP email verification.
 
     Built following RESTful design principles with JWT-secured endpoints and consistent error handling.
+    
     Some useful links:
       - [The  repository](https://github.com/VAibhav1031/Task_Manager_API)
       - [The source  API  definition of the Task_Manager_API ](https://github.com/VAibhav1031/Task_Manager_API/blob/development/task_manager_api/static/openapi.yaml)
