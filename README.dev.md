@@ -9,6 +9,7 @@ A fully REST-based API service for task management with authentication, featurin
 - **Security**: JWT token-based authentication, Rate Limitting, Ip-Ban
 - **Consistent Error Handling**: Standardized error responses across all endpoints
 - **RESTful Design**: Following REST API best practices
+- **Pagination**: Cursor-based pagination
 
 ## Tech Stack:
 
