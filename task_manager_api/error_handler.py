@@ -86,6 +86,7 @@ def too_many_requests(msg=None, reason=None):
     )
 
 
+# Using lib error registering parameterized-decorater "errorhandler" RequestEntityTooLarge
 def register_payload_error_handler(app):
     @app.errorhandler(RequestEntityTooLarge)
     def handle_payload_too_large():

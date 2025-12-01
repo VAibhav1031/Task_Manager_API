@@ -13,8 +13,8 @@ info:
   versions: 1.0.0 
 
 servers:
-  - url: https://api.necromancer.dpdns.org/api
-  - url: http://127.0.0.1:5555/api
+  - url: https://api.necromancer.dpdns.org/api/v1
+  - url: http://127.0.0.1:5555/api/v1
 
 security:
   - bearerAuth: []

@@ -42,7 +42,7 @@ from middleware.rate_limiter import (
 
 logger = logging.getLogger(__name__)
 
-auth = Blueprint("auth", __name__, url_prefix="/api/")
+auth = Blueprint("auth", __name__, url_prefix="/api/v1")
 
 LIMIT = 10
 WINDOW_SIZE = 60
@@ -77,25 +77,21 @@ def signup():
         hashed_password = bcrypt.generate_password_hash(data["password"]).decode(
             "utf-8"
         )
-        new_user = User(username=user_name, email=email,
-                        password_hash=hashed_password)
+        new_user = User(username=user_name, email=email, password_hash=hashed_password)
         db.session.add(new_user)
         db.session.commit()
-        logger.info(f"User Created:  username={
-                    user_name} user_id={new_user.id}")
+        logger.info(f"User Created:  username={user_name} user_id={new_user.id}")
         return jsonify({"message": f"{user_name} user created Sucessfully"}), 201
 
     except sqlalchemy.exc.SQLAlchemyError as e:
         logger.error(
-            f"Error in creating user: username={
-                user_name}email={email} error={e}"
+            f"Error in creating user: username={user_name}email={email} error={e}"
         )
         return internal_server_error(msg="ORM Error")
 
     except Exception as e:
         logger.error(
-            f"Error in creating user: username={
-                user_name}email={email} error={e}"
+            f"Error in creating user: username={user_name}email={email} error={e}"
         )
         return internal_server_error()
 
@@ -261,8 +257,7 @@ def reset_password(user_id, email):
 
     if not user:
         logger.error(
-            f"User not found: user_id={user_id}, email={
-                email}, ip={request.remot_addr}"
+            f"User not found: user_id={user_id}, email={email}, ip={request.remot_addr}"
         )
         not_found(msg="User not found ")
 
@@ -293,8 +288,7 @@ def reset_password(user_id, email):
                 error_type="PasswordReuseNotAllowed",
                 msg="New password must be different from the old one",
             )
-        new_password = bcrypt.generate_password_hash(
-            data["new_password"]).decode()
+        new_password = bcrypt.generate_password_hash(data["new_password"]).decode()
 
         user.password_hash = new_password
         if password_reset:

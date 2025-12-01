@@ -16,10 +16,16 @@ instance/
 *.egg-info
 
 
+
 # USed this so that while merging you wont get this file there 
 docker-compose.dev.yaml
+*.dev
 *.dev.yaml
 *.dev.sh
+*.dev.md
 
 # bannnig the Dockefile.dev 
-Dockefile.env
+Dockerfile.dev
+
+.wakatime-project
+
