@@ -1,0 +1,10 @@
+# 1. Exclude all HTML files (assuming your source code has very few/no HTML files)
+*.html linguist-vendored
+
+# 2. Exclude common Pages build directories, just in case they exist elsewhere
+/docs/** linguist-vendored
+/_site/** linguist-vendored
+
+# 3. Exclude generated CSS/JS if those are also massive
+*.min.css linguist-vendored
+*.min.js linguist-vendored
