@@ -7,6 +7,5 @@
 ## Live Demo :
 > #### **API is live** -> `api.necromancer.dpdns.org`  you can   test directly with ***curl*** or ***postman***
 
-
-For full documentation and  other  details , open the respective file.
+**For full documentation and  other  details , open the respective file.**
 
