@@ -38,7 +38,8 @@ class DevConfig(Config):
     ##################################
 
     SQLALCHEMY_DATABASE_URI = (
-        f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+        f"postgresql+psycopg2://{DB_USER}:{
+            DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
@@ -48,6 +49,7 @@ class DevConfig(Config):
     DEBUG = True
     LOGGING_VERBOSE = True
     LOGGING_QUIET = False
+    # DEBUG_METRICS = 1
 
 
 class ProdConfig(Config):
@@ -66,7 +68,8 @@ class ProdConfig(Config):
     ##################################
 
     SQLALCHEMY_DATABASE_URI = (
-        f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+        f"postgresql+psycopg2://{DB_USER}:{
+            DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = os.environ.get("SECRET_KEY")

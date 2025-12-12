@@ -6,6 +6,7 @@ import logging.config
 from .logging_config import setup_logging
 from flask_mail import Mail
 from flask_migrate import Migrate
+from prometheus_flask_exporter import PrometheusMetrics
 
 db = SQLAlchemy()
 bcrypt = Bcrypt()
@@ -33,6 +34,10 @@ def create_app(config_class=None, verbose=False, quiet=False, log_to_file=True):
     bcrypt.init_app(app)
     mail.init_app(app)
     migrate.init_app(app, db)
+
+    # prometheus_metrics
+    metrics = PrometheusMetrics(app)
+    metrics.info("app_info", "Application info", version="1.0.0")
 
     # Root route (it wont come inside the api module , cause it is not api related route )
 

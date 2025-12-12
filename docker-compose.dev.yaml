@@ -29,7 +29,10 @@ services:
 
       redis:
         condition: service_started 
-    
+      
+      prometheus:
+        condition: service_started
+
     # It is a little bit interesting section, like whenever you make changes in the code in the file, and compose watch catches that it rebuilds the image
     # Sometimes it reloads the container
     develop:
@@ -79,6 +82,24 @@ services:
 
     command: ["redis-server", "--appendonly", "yes","--requirepass","${REDIS_PASSWORD}"]
 
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus-data:/prometheus
+    command:
+      - --storage.tsdb.path=/prometheus
+      - --web.console.templates=/etc/prometheus/consoles
+      - --web.console.libraries=/etc/prometheus/console_libraries
+      - --config.file=/etc/prometheus/prometheus.yml
+    ports:
+      - "9091:9090"
+
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
 
 volumes:
   task_app_data:
