@@ -94,8 +94,8 @@ services:
   prometheus:
     image: prom/prometheus:latest
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-      - ./prometheus-data:/prometheus
+      - ./prometheus.dev.yml:/etc/prometheus/prometheus.yml # in this there is no write is happening just being used by the prometheus-server
+      - ./prometheus_data_dev:/prometheus # for this container need write permission (since it is bind mount host folder should have the permission for other 777)
     command:
       - --storage.tsdb.path=/prometheus
       - --web.console.templates=/etc/prometheus/consoles
