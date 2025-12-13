@@ -50,18 +50,27 @@ services:
     # command: sh -c "flask --app run.py db upgrade && uv run python run.py"
 
     entrypoint: ./docker-entrypoint.dev.sh
+
   dev-db:
-    image: postgres:17-alpine
+    image: postgres:17
+
+
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile.pg.dev
     
     environment:
       POSTGRES_USER: ${DEV_DB_USER}
       POSTGRES_PASSWORD: ${DEV_DB_PASSWORD}
       POSTGRES_DB: ${DEV_DB_NAME}
-      # All data will persist even if you stop the container.
     volumes:
-      - task_app_data:/var/lib/postgresql/data
+      - task_app_data:/bitnami/postgresql/data
+      # - ./postgresql.conf:/var/lib/postgresql/data/postgresql.conf
     
     # This health check tells Docker Compose to wait until the database is ready
+    #
+    # command: ["postgres", "-c", "shared_preload_libraries=pg_cron"]
+
     healthcheck:
 
       test: ["CMD-SHELL", "pg_isready -U ${DEV_DB_USER}  -d ${DEV_DB_NAME} "]
