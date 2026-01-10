@@ -33,11 +33,11 @@ logger = logging.getLogger(__name__)
 
 @tasks.route("/tasks", methods=["GET"])
 @token_required
-@rate_limit("/tasks", limit=100, window_size=60)
+@rate_limit("/tasks", limit = 100, window_size=60)
 def get_tasks_all(user_id: int):
     try:
         query = Task.query.filter_by(user_id=user_id).order_by(Task.id.asc())
-        logger.info("GET /api/tasks requested for get_tasks_all ...")
+        logger.info("GET /api/v1/tasks requested for get_tasks_all ...")
 
         ###################################
         # Custom arguments for 'filter-ing'
@@ -136,10 +136,10 @@ def get_tasks_all(user_id: int):
 
 @tasks.route("/tasks/<int:task_id>", methods=["GET"])
 @token_required
-@rate_limit("/tasks", limit=100, window_size=60)
+@rate_limit("tasks", limit=100, window_size=60)
 def get_task(user_id: int, task_id: int):
     task = Task.query.filter_by(id=task_id, user_id=user_id).first()
-    logger.info("GET /api/tasks requested for get_task...")
+    logger.info("GET /api/v1/tasks requested for get_task...")
 
     if not task:
         logger.error(f"No Task found with task_id = {
@@ -162,11 +162,12 @@ def get_task(user_id: int, task_id: int):
 
 @tasks.route("/tasks/<int:task_id>", methods=["PUT"])
 @token_required
+@rate_limit("tasks", limit=100, window_size=60)
 def update_task(user_id: int, task_id: int):
     schema = UpdateTask()
     try:
         data = schema.load(request.get_json())
-        logger.info("PUT api/task/task_id requested for update_task")
+        logger.info("PUT api/v1/task/task_id requested for update_task")
 
     except ValidationError as err:
         logger.error(f"Input error {err.messages}")
@@ -207,11 +208,12 @@ def update_task(user_id: int, task_id: int):
 
 @tasks.route("/tasks", methods=["POST"])
 @token_required
+@rate_limit("tasks", limit=8, window_size=60)
 def add_task(user_id):
     schema = AddTask()
     try:
         data = schema.load(request.get_json())
-        logger.info("POST /api/tasks requested for add_task...")
+        logger.info("POST /api/v1/tasks requested for add_task...")
 
     except ValidationError as err:
         logger.error(f"Input error {err.messages}")
@@ -259,6 +261,7 @@ def add_task(user_id):
 
 @tasks.route("/tasks/<int:task_id>", methods=["DELETE"])
 @token_required
+@rate_limit("tasks", limit=100, window_size=60)
 def delete(user_id: int, task_id: int):
     task = db.session.get(Task, task_id) or abort(404)
     if task.user_id != user_id:
@@ -277,6 +280,7 @@ def delete(user_id: int, task_id: int):
 
 @tasks.route("/tasks", methods=["DELETE"])
 @token_required
+@rate_limit("tasks", limit=20, window_size=60)
 def delete_all(user_id: int):
     tasks = Task.query.filter_by(user_id=user_id).all()
     logger.info("DELETE /task requested...")

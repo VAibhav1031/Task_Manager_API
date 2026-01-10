@@ -44,6 +44,6 @@ fi
 
 echo "Startting the flask application...."
 # exec uv run python run.py
-exec gunicorn -w 4 -b 0.0.0.0:5555 run:app
+exec gunicorn --workers 5 --threads 3 -b 0.0.0.0:5555 run:app
 
 # flow is  like this   check_if_db_is_ready -> check_migration_folder -> if the migrations script not there -> create_initials & migrate -> db upgrade --> run application

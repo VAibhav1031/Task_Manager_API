@@ -36,7 +36,7 @@ import datetime
 
 
 from middleware.rate_limiter import (
-    rate_limit,
+    # rate_limit,
     record_failed_attempt,
     is_user_blocked,
 )
@@ -50,13 +50,13 @@ WINDOW_SIZE = 60
 
 
 @auth.route("/auth/signup", methods=["POST"])
-@rate_limit("signup", limit=LIMIT, window_size=WINDOW_SIZE)
+# @rate_limit("signup", limit=LIMIT, window_size=WINDOW_SIZE)
 def signup():
     schema = RegisterSchema()
     try:
         # it is already in the dict form then we use load not loads
         data = schema.load(request.get_json())
-        logger.info("POST /api/auth/signup request initiated...")
+        logger.info("POST /api/v1/auth/signup request initiated...")
     except ValidationError as err:
         logger.error(f"Input error {err.messages}")
         return handle_marshmallow_error(err)
@@ -66,7 +66,7 @@ def signup():
 
     # ### CHECK FOR ALREADY EXISTING USER-ESSENTIALS ####
     if User.query.filter_by(username=user_name).first():
-        logger.warning(f"Signup attempt using existing email {email}")
+        logger.warning(f"Signup attempt using existing username {user_name}")
         return user_already_exists("username already exist")
 
     if User.query.filter_by(email=email).first():
@@ -78,21 +78,22 @@ def signup():
         hashed_password = bcrypt.generate_password_hash(data["password"]).decode(
             "utf-8"
         )
-        new_user = User(username=user_name, email=email, password_hash=hashed_password)
+        new_user = User(username=user_name, email=email,
+                        password_hash=hashed_password)
         db.session.add(new_user)
         db.session.commit()
-        logger.info(f"User Created:  username={user_name} user_id={new_user.id}")
+        logger.info(f"User Created:  username={user_name}, user_id={new_user.id}")
         return jsonify({"message": f"{user_name} user created Sucessfully"}), 201
 
     except sqlalchemy.exc.SQLAlchemyError as e:
-        logger.error(
-            f"Error in creating user: username={user_name}email={email} error={e}"
-        )
-        return internal_server_error(msg="ORM Error")
+        logger.error(f"Error in creating user: username={user_name},email={email}, error={e} due to the ::ORM::")
+
+        return internal_server_error()
 
     except Exception as e:
         logger.error(
-            f"Error in creating user: username={user_name}email={email} error={e}"
+            f"Error in creating user: username={
+                user_name}email={email} error={e}"
         )
         return internal_server_error()
 
@@ -101,7 +102,7 @@ def signup():
 
 
 @auth.route("/auth/login", methods=["POST"])
-@rate_limit("login", limit=LIMIT, window_size=WINDOW_SIZE)
+# @rate_limit("login", limit=LIMIT, window_size=WINDOW_SIZE)
 def login():
     schema = LoginSchema()
     try:
@@ -130,6 +131,7 @@ def login():
         logger.info(f"User used username={data['username']}")
 
     # Common Identifier
+
     identifier = f"{data['email'] if email_log_flag else data['username']}"
     key_prefix = f"login:user:{identifier}"
 
@@ -138,7 +140,7 @@ def login():
         key_prefix,
         user_max_request=5,
     ):
-        logger.error(f"Blocker user with {identifier}, Rate limit exceeded")
+        logger.error(f"Blocked user with {identifier}, Rate limit exceeded")
         return too_many_requests(msg="Rate limit Exceeded")
 
     # ### Password Authentication####
@@ -165,7 +167,7 @@ def login():
 
 
 @auth.route("/auth/forget-password", methods=["POST"])
-@rate_limit("forget-password", limit=LIMIT, window_size=WINDOW_SIZE)
+# @rate_limit("forget-password", limit=LIMIT, window_size=WINDOW_SIZE)
 def forget_password():
     # it is bit like  we send the mail to the user no since we are the backend service he/she will authenticate user with otp
     # then if the otp written is valid then go and reser password
@@ -198,6 +200,7 @@ def forget_password():
 
 
 @auth.route("/auth/verify-otp", methods=["POST"])
+# @rate_limit("verify-otp", limit=LIMIT, window_size=WINDOW_SIZE)
 @otp_token_chk
 def verify_otp(token_otp, token_email):
     schema = VerifyOtp()
@@ -240,7 +243,7 @@ def verify_otp(token_otp, token_email):
             user_id=user.id,
         )
 
-        ### IMportant ###
+        ### Impportant ###
         stmt = delete(PasswordReset).where(
             PasswordReset.user_id == user.id,
             PasswordReset.expired_at < datetime.datetime.now(datetime.UTC),
@@ -274,7 +277,8 @@ def reset_password(user_id, email):
 
     if not user:
         logger.error(
-            f"User not found: user_id={user_id}, email={email}, ip={request.remot_addr}"
+            f"User not found: user_id={user_id}, email={
+                email}, ip={request.remot_addr}"
         )
         not_found(msg="User not found ")
 
@@ -304,7 +308,8 @@ def reset_password(user_id, email):
                 error_type="PasswordReuseNotAllowed",
                 msg="New password must be different from the old one",
             )
-        new_password = bcrypt.generate_password_hash(data["new_password"]).decode()
+        new_password = bcrypt.generate_password_hash(
+            data["new_password"]).decode()
 
         user.password_hash = new_password
         if password_reset:

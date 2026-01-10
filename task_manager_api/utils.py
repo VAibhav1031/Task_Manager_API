@@ -53,7 +53,7 @@ def generate_password_token(user_id, email):
 # ----------------
 
 
-# for login
+# for POST_AUTH Usage
 def decode_access_token(token):
     try:
         payload = jwt.decode(
@@ -68,7 +68,7 @@ def decode_access_token(token):
         return ("token invalid", None)  # invalid
 
 
-# you know for thiss password
+# For decoding the reset token 
 def decode_reset_token(token):
     try:
         payload = jwt.decode(

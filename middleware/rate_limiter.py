@@ -2,9 +2,9 @@ import time
 from functools import wraps
 from flask import request, current_app
 from task_manager_api import logging
-
+from task_manager_api.utils import decode_access_token
 import redis
-from task_manager_api.utils import too_many_requests
+from task_manager_api.error_handler import too_many_requests
 # from collections import defaultdict, deque
 
 
@@ -123,23 +123,26 @@ def is_user_blocked(key_prefix, user_max_request):
 
 
 ######################################
-# Decorator for the per-ip rate limit
+# Decorator for the user-id rate limit
 # ###################################
+
 def rate_limit(identifier, limit, window_size):
     def decorator(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
-            ip = request.headers.get("X-Forwarded-For", request.remote_addr)
-            key_prefix_ip = f"{identifier}:ip:{ip}"
+            # token is used cause they are already verified 
+            token = request.headers.get("Authorization").split(" ")[1]
+            user_id = decode_access_token(token)
 
-            logger.info(f"User ip=> {key_prefix_ip}")
-            # window_queue = ip_queue[key_ip]
+            key_prefix_user_id = f"{identifier}:user_id:{user_id}"
+
+            logger.info(f"User-Id=> {key_prefix_user_id}")
 
             # if sliding_window(window_queue, window_size, limit, key_ip):
             #     return f(*args, **kwargs)
 
-            if not is_rate_limited(key_prefix_ip, limit, window_size):
-                logger.error(f"Blocked IP : {ip} for too many request ")
+            if not is_rate_limited(key_prefix_user_id, limit, window_size):
+                logger.error(f" Blocked user_id : {user_id} for too many request ")
                 return too_many_requests(msg="Rate Limit Exceeded ::) ")
 
             return f(*args, **kwargs)
