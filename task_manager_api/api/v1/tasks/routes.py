@@ -208,7 +208,7 @@ def update_task(user_id: int, task_id: int):
 
 @tasks.route("/tasks", methods=["POST"])
 @token_required
-@rate_limit("tasks", limit=8, window_size=60)
+@rate_limit("tasks", limit=100, window_size=60)
 def add_task(user_id):
     schema = AddTask()
     try:
@@ -261,7 +261,7 @@ def add_task(user_id):
 
 @tasks.route("/tasks/<int:task_id>", methods=["DELETE"])
 @token_required
-@rate_limit("tasks", limit=100, window_size=60)
+@rate_limit("tasks", limit=60, window_size=60)
 def delete(user_id: int, task_id: int):
     task = db.session.get(Task, task_id) or abort(404)
     if task.user_id != user_id:
