@@ -22,6 +22,7 @@ from .tasks_utils import filter_manager
 
 import logging
 from middleware.rate_limiter import rate_limit
+from batch_process.bucket import bucket_insertion
 
 DEFAULT_LIMIT = 10
 MAX_LIMIT = 100
@@ -208,7 +209,7 @@ def update_task(user_id: int, task_id: int):
 
 @tasks.route("/tasks", methods=["POST"])
 @token_required
-@rate_limit("tasks", limit=100, window_size=60)
+# @rate_limit("tasks", limit=100, window_size=60)
 def add_task(user_id):
     schema = AddTask()
     try:
@@ -219,13 +220,13 @@ def add_task(user_id):
         logger.error(f"Input error {err.messages}")
 
         return handle_marshmallow_error(err)
-
-    # ################
-    # TASK-QUOTA Check
-    # ################
-    tasks_count = Task.query.filter_by(user_id=user_id).count()
-    if tasks_count >= 1000:
-        return forbidden_access(msg="Task limit reached (1000), Contact Support :)")
+    #
+    # # ################
+    # # TASK-QUOTA Check
+    # # ################
+    # tasks_count = Task.query.filter_by(user_id=user_id).count()
+    # if tasks_count >= 1000:
+    #     return forbidden_access(msg="Task limit reached (1000), Contact Support :)")
 
     if data.get("user_id"):
         # no user_id is required  while adding task , mostly JWT token will get that
@@ -235,25 +236,22 @@ def add_task(user_id):
         return forbidden_access("Forbidden")
 
     try:
-        new_task = Task(
-            title=data["title"],
-            description=data["description"],
-            completion=data.get("due_date", False),
-            priority=data.get("priority", "medium"),
-            due_date=data.get("due_date"),
-            user_id=user_id,
-        )
+        # new_task = Task(
+        #     title=data["title"],
+        #     description=data["description"],
+        #     completion=data.get("due_date", False),
+        #     priority=data.get("priority", "medium"),
+        #     due_date=data.get("due_date"),
+        #     user_id=user_id,
+        # )
+        #
+        # db.session.add(new_task)
+        # db.session.commit()
+       
+        bucket_insertion(data,user_id)
+        logger.info(f"Task added: title = {data['title']}, user_id = {user_id}")
+        return jsonify({"message": "Task  added"}), 201
 
-        db.session.add(new_task)
-        db.session.commit()
-
-        logger.info(
-            f"Task added: task_id={new_task.id}, title={new_task.title}, user_id={
-                user_id
-            }"
-        )
-
-        return jsonify({"message": "Task added", "task_id": new_task.id}), 201
     except Exception as e:
         logger.error(f"Task creation failed error={e}")
         return internal_server_error()
@@ -295,3 +293,4 @@ def delete_all(user_id: int):
     db.session.commit()
 
     return jsonify({"message": f"All task of user_id {user_id} deleted "}), 200
+

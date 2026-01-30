@@ -50,7 +50,6 @@ WINDOW_SIZE = 60
 
 
 @auth.route("/auth/signup", methods=["POST"])
-# @rate_limit("signup", limit=LIMIT, window_size=WINDOW_SIZE)
 def signup():
     schema = RegisterSchema()
     try:
@@ -102,7 +101,6 @@ def signup():
 
 
 @auth.route("/auth/login", methods=["POST"])
-# @rate_limit("login", limit=LIMIT, window_size=WINDOW_SIZE)
 def login():
     schema = LoginSchema()
     try:
@@ -120,7 +118,7 @@ def login():
         user = User.query.filter_by(email=data["email"]).first()
         if not user:
             logger.error(f"User not found with email = {data['email']}")
-            return not_found()
+            return not_found(msg="User Not Found",reason="user is not registered")
 
         logger.info(f"User used email={data['email']} as the login")
     else:
@@ -167,7 +165,6 @@ def login():
 
 
 @auth.route("/auth/forget-password", methods=["POST"])
-# @rate_limit("forget-password", limit=LIMIT, window_size=WINDOW_SIZE)
 def forget_password():
     # it is bit like  we send the mail to the user no since we are the backend service he/she will authenticate user with otp
     # then if the otp written is valid then go and reser password
@@ -200,7 +197,6 @@ def forget_password():
 
 
 @auth.route("/auth/verify-otp", methods=["POST"])
-# @rate_limit("verify-otp", limit=LIMIT, window_size=WINDOW_SIZE)
 @otp_token_chk
 def verify_otp(token_otp, token_email):
     schema = VerifyOtp()
