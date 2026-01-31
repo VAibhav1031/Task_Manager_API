@@ -109,11 +109,11 @@ The dual-trigger approach maintains both **performance** (batch efficiency) and 
 
 > Little bit of JMETER knowledge  is required 
 
-#### ![Screenshot of Before Batching JMETER Dashboard Result :](repo_essentials/before.png)
+#### ![Screenshot of Before Batching JMETER Dashboard Result :](../repo_essentials_dev/before.png)
 - Througput (or TPS) -> 1585/sec
 - Increasing the thread count in the jmeter start increasing satuaration and TPS start dropping
 
-#### ![Screenshot of after Batching JMETER Dashboard Result :](repo_essentials/after.png)
+#### ![Screenshot of after Batching JMETER Dashboard Result :](../repo_essentials_dev/after.png)
 - Througput (or TPS) -> 1790/sec
 - There is good amount of througput jump you will see 
 

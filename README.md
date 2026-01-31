@@ -2,7 +2,7 @@
 
 > This project supports multiple environments(production and development) .
 
-- 🧱 [Development README/setup →](./README.dev.md)
+- 🧱 [Development README/setup →](./documentation/README.dev.md)
 
 ## Live Demo :
 > #### **API is live** -> `api.necromancer.dpdns.org`  you can   test directly with ***curl*** or ***postman***
