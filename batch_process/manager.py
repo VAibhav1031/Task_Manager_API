@@ -7,32 +7,45 @@ import batch_process
 import logging
 import threading
 import os 
+import requests
+
+
 
 logger = logging.getLogger(__name__)
 
 lock = threading.Lock()
 
+go_session = requests.session()
 
 def managing(app):
     with app.app_context():
-        global bucket_, total_commit
+        global bucket_, total_commit, go_session
         last_time_flush = time.time()
         while True:
             processing_data = []
 
             with lock:
                 # last_time_flush is initialized in the __init__.py with time.time()
-                if len(bucket_)>= GLOBAL_LIMIT or (bucket_   and ((time.time() - last_time_flush) >= MAX_PENDING_LIMIT)) : 
+
+                # here again check bucket_ first check is for the thing like if the http request failed we made that whatever the user has requested would be in the bucket again , 
+                if  bucket_  or (len(bucket_)>= GLOBAL_LIMIT or (bucket_   and ((time.time() - last_time_flush) >= MAX_PENDING_LIMIT))) : 
                     processing_data = bucket_[:]
                     bucket_.clear()
             
             if processing_data:
                 try:
-                    db.session.execute(
-                            insert(Task), 
-                            processing_data 
-                            )
-                    db.session.commit()
+                    # db.session.execute(
+                    #         insert(Task), 
+                    #         processing_data 
+                    #         )
+                    # db.session.commit()
+
+                    response = go_session.post("http://go-batcher:7676/tasks",json=processing_data,headers={"Content-Type": "application/json"})
+
+                    if response.status_code != 202:
+                        logger.error(f"Microservice failed : {response.status_code}")
+                        bucket_ = processing_data[:]
+                        continue
 
                     total_commit += 1 # updating the total_commit parameter (only for debugging)
 
@@ -48,8 +61,12 @@ def managing(app):
                     # now we chose the mutation. 
 
                 except Exception as e:
-                        db.session.rollback()
-                        logger.error(f"Batch Task creation failed error={e}")
+                        # db.session.rollback()
+                        # logger.error(f"Batch Task creation failed error={e}")
+
+
+                        bucket_ = processing_data[:]
+                        logger.error(f"Batch Http request failed error={e}")
 
 
             time.sleep(0.5)

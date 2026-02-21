@@ -19,7 +19,7 @@ from task_manager_api.schemas import (
 )
 from datetime import timezone
 from .tasks_utils import filter_manager
-
+import requests 
 import logging
 from middleware.rate_limiter import rate_limit
 from batch_process.bucket import bucket_insertion
@@ -31,6 +31,9 @@ tasks = Blueprint("tasks", __name__, url_prefix="/api/v1")
 
 logger = logging.getLogger(__name__)
 
+# go_session = requests.session()
+
+TASK_REQUEST = []
 
 @tasks.route("/tasks", methods=["GET"])
 @token_required
@@ -248,9 +251,23 @@ def add_task(user_id):
         # db.session.add(new_task)
         # db.session.commit()
        
+      
+        # # adding the user_id in the payload
+        # data['user_id'] = user_id
+        #
+        # logger.info(f"data send: {data}")
+        #                                 # go-batcher
+        # response = go_session.post("http://go-batcher:7676/tasks", json = data)
+        # if response.status_code != 202:
+        #     logger.error(f"Microservice failed : {response.status_code}")
+        #     return internal_server_error()
+
+
         bucket_insertion(data,user_id)
+    
         logger.info(f"Task added: title = {data['title']}, user_id = {user_id}")
-        return jsonify({"message": "Task  added"}), 201
+
+        return jsonify({"message": "Task request Accepted , Processing is not completed"}),202
 
     except Exception as e:
         logger.error(f"Task creation failed error={e}")

@@ -53,7 +53,7 @@ def create_app(config_class=None, verbose=False, quiet=False, log_to_file=True):
 
 
     ## thread register 
-
+    #
     from batch_process.manager import managing
     worker_thread = threading.Thread(target=managing,args=(app,), daemon=True)
     worker_thread.start()

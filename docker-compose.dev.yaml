@@ -51,6 +51,24 @@ services:
 
     entrypoint: ./docker-entrypoint.dev.sh
 
+
+  go-batcher:
+    build:
+      context: ../batch_processing
+      dockerfile: Dockerfile
+
+    ports:
+      - "127.0.0.1:7676:7676"
+      - "127.0.0.1:6060:6060"
+
+    environment:
+      DATABASE_URL: postgres://task_dev_user:dev_secret@dev-db:5432/task_dev_db
+
+    depends_on:
+      dev-db:
+        condition: service_healthy
+
+
   dev-db:
     image: postgres:17
 
@@ -58,7 +76,8 @@ services:
     # build:
     #   context: .
     #   dockerfile: Dockerfile.pg.dev
-    
+    ports:
+      - "5433:5432"
     environment:
       POSTGRES_USER: ${DEV_DB_USER}
       POSTGRES_PASSWORD: ${DEV_DB_PASSWORD}

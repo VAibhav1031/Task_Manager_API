@@ -1,8 +1,8 @@
 # from . import bucket_,  total_request
+import threading
 import batch_process
 import logging
 logger = logging.getLogger(__name__)
-import threading
 
 def bucket_insertion(data,user_id):
     # for the /api/v1/tasks POST 
