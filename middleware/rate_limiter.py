@@ -3,8 +3,9 @@ from functools import wraps
 from flask import request, current_app
 from task_manager_api import logging
 from task_manager_api.utils import decode_access_token
-from task_manager_api.extensions.redis_client import redis_client
+from task_manager_api.extensions.redis_client import pool
 from task_manager_api.error_handler import too_many_requests
+from redis import Redis
 # from collections import defaultdict, deque
 
 # This is the biggest culprit in the game , it cause the new connection for each get_redis_client, which cause the TCP connection to be exhausted becasue OS  just ran off the ephemeral ports ,  and under Heavy load this thing only come to know . 
@@ -100,6 +101,7 @@ redis.call('EXPIRE', key,window+10)
 
 # PER-IP related
 def is_rate_limited(key_prefix, limit, window_size):
+    redis_client = Redis(connection_pool=pool,decode_responses=True)
     script = redis_client.register_script(rate_limit_script)
     now = int(time.time())
     return script(keys=[key_prefix], args=[window_size, limit, now])
@@ -107,12 +109,16 @@ def is_rate_limited(key_prefix, limit, window_size):
 
 # PER-USER related
 def record_failed_attempt(key_prefix, limit, window_size): 
+
+    redis_client = Redis(connection_pool=pool,decode_responses=True)
     script = redis_client.register_script(user_record_failed_attempt_script)
     now = int(time.time())
     return script(keys=[key_prefix], args=[window_size, limit, now])
 
 
 def is_user_blocked(key_prefix, user_max_request):
+
+    redis_client = Redis(connection_pool=pool,decode_responses=True)
     count = redis_client.zcard(key_prefix)
     return count >= user_max_request
 

@@ -4,8 +4,10 @@ services:
       context: .
       dockerfile: Dockerfile.dev
     volumes:
-       - ./migrations:/task_app/migrations 
-
+       - ./migrations:/task_app/migrations
+       - ./emergency_fallback.jsonl:/task_app/emergency_fallback.jsonl
+    cap_add:
+      - SYS_PTRACE
     # The ports mapping, that your application needed when you start
     ports:
       - "127.0.0.1:5555:5555" 
@@ -62,6 +64,7 @@ services:
       - "127.0.0.1:6060:6060"
 
     environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
       DATABASE_URL: postgres://task_dev_user:dev_secret@dev-db:5432/task_dev_db
 
     depends_on:
@@ -83,13 +86,24 @@ services:
       POSTGRES_PASSWORD: ${DEV_DB_PASSWORD}
       POSTGRES_DB: ${DEV_DB_NAME}
     volumes:
-      - task_app_data:/bitnami/postgresql/data
-      # - ./postgresql.conf:/var/lib/postgresql/data/postgresql.conf
-    
-    # This health check tells Docker Compose to wait until the database is ready
+      - task_app_data:/var/lib/postgresql/data
+      # This health check tells Docker Compose to wait until the database is ready
     #
-    # command: ["postgres", "-c", "shared_preload_libraries=pg_cron"]
+    shm_size: '2gb'
+    
+    command: >
+      postgres 
+      -c shared_buffers=2GB 
+      -c max_wal_size=4GB 
+      -c min_wal_size=1GB 
+      -c checkpoint_timeout=15min
+      -c maintenance_work_mem=512MB
 
+    deploy:
+      resources:
+        limits: 
+          memory: 4GB
+    
     healthcheck:
 
       test: ["CMD-SHELL", "pg_isready -U ${DEV_DB_USER}  -d ${DEV_DB_NAME} "]
@@ -101,14 +115,14 @@ services:
 
   redis:
     image: redis:8.2
-    container_name: redis_server
+    # container_name: redis_server
     ports: 
       - "6380:6379"
 
     volumes:
       - redis_data:/data 
 
-    command: ["redis-server", "--appendonly", "yes","--requirepass","${REDIS_PASSWORD}"]
+    command: ["redis-server","--maxmemory","2gb", "--appendonly", "yes","--requirepass","${REDIS_PASSWORD}"]
 
   prometheus:
     image: prom/prometheus:latest

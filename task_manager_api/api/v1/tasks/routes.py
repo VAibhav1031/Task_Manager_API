@@ -19,11 +19,10 @@ from task_manager_api.schemas import (
 )
 from datetime import timezone
 from .tasks_utils import filter_manager
-import requests 
 import logging
 from middleware.rate_limiter import rate_limit
 from batch_process.bucket import bucket_insertion
-
+from task_manager_api.extensions import redis_client
 DEFAULT_LIMIT = 10
 MAX_LIMIT = 100
 
@@ -254,7 +253,6 @@ def add_task(user_id):
       
         # # adding the user_id in the payload
         # data['user_id'] = user_id
-        #
         # logger.info(f"data send: {data}")
         #                                 # go-batcher
         # response = go_session.post("http://go-batcher:7676/tasks", json = data)
@@ -264,9 +262,13 @@ def add_task(user_id):
 
 
         bucket_insertion(data,user_id)
-    
-        logger.info(f"Task added: title = {data['title']}, user_id = {user_id}")
+   
 
+        # now we have to go differently the batch sending http request is not the best way we can go now , through the TCP , lets use the Unix socket brother 
+        # or we can go some other way where we can have better way  using the central queue kind of shit brother really i would say and just go take the work from there heavy call Network call from the python would cost thing less and would work better i would say  let go 
+
+
+        logger.info(f"Task added: title = {data['title']}, user_id = {user_id}")
         return jsonify({"message": "Task request Accepted , Processing is not completed"}),202
 
     except Exception as e:
