@@ -98,6 +98,7 @@ services:
       -c min_wal_size=1GB 
       -c checkpoint_timeout=15min
       -c maintenance_work_mem=512MB
+      -c synchronous_commit=off
 
     deploy:
       resources:

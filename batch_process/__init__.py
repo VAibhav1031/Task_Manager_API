@@ -1,9 +1,9 @@
 import time 
 
 # global limit for the bucket
-GLOBAL_LIMIT  = 250 
+GLOBAL_LIMIT  = 500 
 bucket_ = []
-MAX_PENDING_LIMIT = 20
+MAX_PENDING_LIMIT = 55
 last_time_flush = time.time() 
 total_request = 0
 total_commit = 0

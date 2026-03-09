@@ -1,16 +1,15 @@
 import time
 from redis.exceptions import RedisError,ConnectionError
-import redis 
-from task_manager_api import db
-from sqlalchemy import insert
-from task_manager_api.models import Task
+# from task_manager_api import db
+# from sqlalchemy import insert
+# from task_manager_api.models import Task
 from . import bucket_,MAX_PENDING_LIMIT, GLOBAL_LIMIT, total_commit 
 import batch_process
 import logging
 import threading
 import os 
-import requests
-from requests.adapters import HTTPAdapter
+# import requests
+# from requests.adapters import HTTPAdapter
 import orjson
 from task_manager_api.extensions.redis_client import pool
 from redis import Redis
@@ -18,10 +17,10 @@ from redis import Redis
 logger = logging.getLogger(__name__)
 
 lock = threading.Lock()
-
-go_session = requests.session()
-adapter = HTTPAdapter(pool_connections=75, pool_maxsize=110)
-go_session.mount("http://",adapter)
+#
+# go_session = requests.session()
+# adapter = HTTPAdapter(pool_connections=75, pool_maxsize=110)
+# go_session.mount("http://",adapter)
 
 redis_client = Redis(connection_pool=pool,decode_responses=True)
 
@@ -51,7 +50,7 @@ def managing(app):
                 if  len(bucket_)>= GLOBAL_LIMIT or (bucket_   and ((time.time() - last_time_flush) >= MAX_PENDING_LIMIT)) : 
                     processing_data = bucket_[:]
                     bucket_.clear()
-            
+                # we cant hold the lock  for the longer moment wee have to copy the thingand remove the lock , yes  the copy that big is like memory and time consumption 
             if processing_data:
                 try:
                     # db.session.execute(
@@ -86,8 +85,8 @@ def managing(app):
                     last_time_flush = time.time()
                     logger.info(f"Batch commited of {len(processing_data)} request")
                     
-                    logger.info(f"worker PID : {os.getpid()}, thread ID: {threading.get_ident()}, bucket_id: {id(bucket_)}, bucket_len: {len(processing_data)}, last_time_flush : {last_time_flush}")
-                    
+                    # logger.info(f"worker PID : {os.getpid()}, thread ID: {threading.get_ident()}, bucket_id: {id(bucket_)}, bucket_len: {len(processing_data)}, last_time_flush : {last_time_flush}")
+                    #
                     logger.info(f"worker PID : {os.getpid()}, total_request: {batch_process.total_request}, total_batch_commited: {total_commit}")
                     #there is one thing like  bucket_id : cause earlier we were duing rebind (-ing ) which was literally a new object creation
                     # and referencing to that,  and in the threading , that is the worse thing to  stop your  function to run or work  
