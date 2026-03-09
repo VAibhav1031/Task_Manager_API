@@ -19,10 +19,10 @@ from task_manager_api.schemas import (
 )
 from datetime import timezone
 from .tasks_utils import filter_manager
-
 import logging
 from middleware.rate_limiter import rate_limit
-
+from batch_process.bucket import bucket_insertion
+from task_manager_api.extensions import redis_client
 DEFAULT_LIMIT = 10
 MAX_LIMIT = 100
 
@@ -30,14 +30,17 @@ tasks = Blueprint("tasks", __name__, url_prefix="/api/v1")
 
 logger = logging.getLogger(__name__)
 
+# go_session = requests.session()
+
+TASK_REQUEST = []
 
 @tasks.route("/tasks", methods=["GET"])
 @token_required
-@rate_limit("/tasks", limit=100, window_size=60)
+@rate_limit("/tasks", limit = 100, window_size=60)
 def get_tasks_all(user_id: int):
     try:
         query = Task.query.filter_by(user_id=user_id).order_by(Task.id.asc())
-        logger.info("GET /api/tasks requested for get_tasks_all ...")
+        logger.info("GET /api/v1/tasks requested for get_tasks_all ...")
 
         ###################################
         # Custom arguments for 'filter-ing'
@@ -87,15 +90,6 @@ def get_tasks_all(user_id: int):
                 next_id = tasks[-1].id
                 next_cursor = cursor_encoder(next_id)
 
-            # next_cursor = (
-            #     cursor_encoder(tasks[-1].id) if has_more and len(tasks) > 0 else None
-            # )
-            #
-            # we have the  few things to be remeber
-
-            # tasks = query.  # default for every
-            # # Debugging logger
-            # logger.info(f"before 404 check : {[t.title for t in tasks]}")
 
             return jsonify(
                 {
@@ -134,10 +128,10 @@ def get_tasks_all(user_id: int):
 
 @tasks.route("/tasks/<int:task_id>", methods=["GET"])
 @token_required
-@rate_limit("/tasks", limit=100, window_size=60)
+@rate_limit("tasks", limit=100, window_size=60)
 def get_task(user_id: int, task_id: int):
     task = Task.query.filter_by(id=task_id, user_id=user_id).first()
-    logger.info("GET /api/tasks requested for get_task...")
+    logger.info("GET /api/v1/tasks requested for get_task...")
 
     if not task:
         logger.error(f"No Task found with task_id = {task_id}, user_id={user_id}")
@@ -159,11 +153,12 @@ def get_task(user_id: int, task_id: int):
 
 @tasks.route("/tasks/<int:task_id>", methods=["PUT"])
 @token_required
+@rate_limit("tasks", limit=100, window_size=60)
 def update_task(user_id: int, task_id: int):
     schema = UpdateTask()
     try:
         data = schema.load(request.get_json())
-        logger.info("PUT api/task/task_id requested for update_task")
+        logger.info("PUT api/v1/task/task_id requested for update_task")
 
     except ValidationError as err:
         logger.error(f"Input error {err.messages}")
@@ -204,17 +199,18 @@ def update_task(user_id: int, task_id: int):
 
 @tasks.route("/tasks", methods=["POST"])
 @token_required
+@rate_limit("tasks", limit=100, window_size=60)
 def add_task(user_id):
     schema = AddTask()
     try:
         data = schema.load(request.get_json())
-        logger.info("POST /api/tasks requested for add_task...")
+        logger.info("POST /api/v1/tasks requested for add_task...")
 
     except ValidationError as err:
         logger.error(f"Input error {err.messages}")
 
         return handle_marshmallow_error(err)
-
+    #
     # ################
     # TASK-QUOTA Check
     # ################
@@ -230,25 +226,13 @@ def add_task(user_id):
         return forbidden_access("Forbidden")
 
     try:
-        new_task = Task(
-            title=data["title"],
-            description=data["description"],
-            completion=data.get("due_date", False),
-            priority=data.get("priority", "medium"),
-            due_date=data.get("due_date"),
-            user_id=user_id,
-        )
 
-        db.session.add(new_task)
-        db.session.commit()
+        bucket_insertion(data,user_id)
+   
 
-        logger.info(
-            f"Task added: task_id={new_task.id}, title={new_task.title}, user_id={
-                user_id
-            }"
-        )
+        logger.info(f"Task added: title = {data['title']}, user_id = {user_id}")
+        return jsonify({"message": "Task request Accepted , Processing is not completed"}),202
 
-        return jsonify({"message": "Task added", "task_id": new_task.id}), 201
     except Exception as e:
         logger.error(f"Task creation failed error={e}")
         return internal_server_error()
@@ -256,6 +240,7 @@ def add_task(user_id):
 
 @tasks.route("/tasks/<int:task_id>", methods=["DELETE"])
 @token_required
+@rate_limit("tasks", limit=60, window_size=60)
 def delete(user_id: int, task_id: int):
     task = db.session.get(Task, task_id) or abort(404)
     if task.user_id != user_id:
@@ -274,6 +259,7 @@ def delete(user_id: int, task_id: int):
 
 @tasks.route("/tasks", methods=["DELETE"])
 @token_required
+@rate_limit("tasks", limit=20, window_size=60)
 def delete_all(user_id: int):
     tasks = Task.query.filter_by(user_id=user_id).all()
     logger.info("DELETE /task requested...")
@@ -288,3 +274,4 @@ def delete_all(user_id: int):
     db.session.commit()
 
     return jsonify({"message": f"All task of user_id {user_id} deleted "}), 200
+

@@ -4,10 +4,11 @@ from functools import wraps
 from flask import current_app
 import jwt
 from flask import request
-from .error_handler import unauthorized_error, too_many_requests, bad_request
+from .error_handler import unauthorized_error, bad_request
 import secrets
 from .models import PasswordReset
 import logging
+from task_manager_api import db
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +53,7 @@ def generate_password_token(user_id, email):
 # ----------------
 
 
-# for login
+# for POST_AUTH Usage
 def decode_access_token(token):
     try:
         payload = jwt.decode(
@@ -67,7 +68,7 @@ def decode_access_token(token):
         return ("token invalid", None)  # invalid
 
 
-# you know for thiss password
+# For decoding the reset token 
 def decode_reset_token(token):
     try:
         payload = jwt.decode(
@@ -169,18 +170,29 @@ def reset_token_chk(func):
                         f"Password Reset Token already used  for user_id={
                             user_id}"
                     )
+                    db.session.delete(reset_record)
+                    db.session.commit()
                     return bad_request(
                         msg="",
                         reason="This reset token was already used",
                     )
 
-                if reset_record.attempts >= 4:
+                elif reset_record.attempts >= 4:
+                    db.session.delete(reset_record)
+                    db.session.commit()
                     logger.error("Attempt exceeded for the resetting password")
-                    return too_many_requests(
+                    return bad_request(
                         msg="Attempt Exceeded for the resetting password",
                         reason="You have exceeded maximum allowed attempts. ",
                     )
-
+            else:
+                logger.warning(
+                    "Reset Record could be deleted either token 'isused' or attempts 'exceeded' "
+                )
+                return bad_request(
+                    msg="Record has been deleted",
+                    reason="Either token is being used or attempts is exceeded",
+                )
             logger.warning(f"the attempts value is {reset_record.attempts}")
             return func(user_id, email, *args, **kwargs)
         else:

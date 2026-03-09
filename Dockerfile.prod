@@ -1,13 +1,18 @@
-FROM python:3.13-slim 
+FROM python:3.14-slim 
 
 WORKDIR /task_app
 
 COPY . .
 
-RUN apt-get update && apt-get install -y postgresql-client && \
+
+RUN apt-get update && apt-get install -y \
+    postgresql-client \
+    libpq-dev \
+    gcc \
+    python3-dev && \
     pip3 install uv && \
-    uv sync \
-    && rm -rf /var/lib/apt/lists/*
+    uv sync && \
+    rm -rf /var/lib/apt/lists/*
 
 
 RUN chmod +x docker-entrypoint.prod.sh 

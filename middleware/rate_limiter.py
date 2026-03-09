@@ -2,21 +2,23 @@ import time
 from functools import wraps
 from flask import request, current_app
 from task_manager_api import logging
-
-import redis
-from task_manager_api.utils import too_many_requests
+from task_manager_api.utils import decode_access_token
+from task_manager_api.extensions.redis_client import pool
+from task_manager_api.error_handler import too_many_requests
+from redis import Redis
 # from collections import defaultdict, deque
 
+# This is the biggest culprit in the game , it cause the new connection for each get_redis_client, which cause the TCP connection to be exhausted becasue OS  just ran off the ephemeral ports ,  and under Heavy load this thing only come to know . 
 
-def get_redis_client():
-    return redis.Redis(
-        host=current_app.config["REDIS_HOST"],
-        port=current_app.config["REDIS_PORT"],
-        # username=current_app.config["REDIS_USER"],
-        password=current_app.config["REDIS_PASSWORD"],
-        decode_responses=True,
-    )
-
+# def get_redis_client():
+#     return redis.Redis(
+#         host=current_app.config["REDIS_HOST"],
+#         port=current_app.config["REDIS_PORT"],
+#         # username=current_app.config["REDIS_USER"],
+#         password=current_app.config["REDIS_PASSWORD"],
+#         decode_responses=True,
+#     )
+#
 
 # for normal testing
 # redis_client = redis.Redis(
@@ -29,42 +31,6 @@ def get_redis_client():
 
 logger = logging.getLogger(__name__)
 
-
-##############################################################################################
-# Trying to use the double ended queue data strucure to sliding window technique without redis
-# ############################################################################################
-
-# ip_queue = defaultdict(deque)
-# def sliding_window(window_queue, window_size, limit, key_ip, arrival_time=None):
-#     # i think  first  check should be the  that the currently the incoming  request can be entertained or Not
-#     # why add to the deque if it is  not  valid just dont allow
-#
-#     if arrival_time is None:
-#         arrival_time = time.time()
-#
-#     while window_queue and window_queue[0] <= (arrival_time - window_size):
-#         window_queue.popleft()
-#
-#     logger.info(f"window_queue : {window_queue}")
-#     if not window_queue and key_ip in window_queue:
-#         del ip_queue[key_ip]
-#
-#     if len(window_queue) >= limit:
-#         return False
-#
-#     window_queue.append(arrival_time)
-#     return True
-#
-#
-# def sliding_window_per_user(window_queue, window_size, limit, arrival_time):
-#     # but how  we get the  username i thought , then this  came to my mind first decorator run would be the app.route one
-#     # then we can use the  request function to get the username and do a sruff
-#     while window_queue and window_queue[0] <= (arrival_time - window_size):
-#         window_queue.popleft()
-#     if len(window_queue) >= limit:
-#         return False
-#
-#     return True
 
 
 rate_limit_script = """
@@ -99,22 +65,24 @@ redis.call('EXPIRE', key,window+10)
 
 # PER-IP related
 def is_rate_limited(key_prefix, limit, window_size):
-    redis_client = get_redis_client()
+    redis_client = Redis(connection_pool=pool,decode_responses=True)
     script = redis_client.register_script(rate_limit_script)
     now = int(time.time())
     return script(keys=[key_prefix], args=[window_size, limit, now])
 
 
 # PER-USER related
-def record_failed_attempt(key_prefix, limit, window_size):
-    redis_client = get_redis_client()
+def record_failed_attempt(key_prefix, limit, window_size): 
+
+    redis_client = Redis(connection_pool=pool,decode_responses=True)
     script = redis_client.register_script(user_record_failed_attempt_script)
     now = int(time.time())
     return script(keys=[key_prefix], args=[window_size, limit, now])
 
 
 def is_user_blocked(key_prefix, user_max_request):
-    redis_client = get_redis_client()
+
+    redis_client = Redis(connection_pool=pool,decode_responses=True)
     count = redis_client.zcard(key_prefix)
     return count >= user_max_request
 
@@ -123,23 +91,26 @@ def is_user_blocked(key_prefix, user_max_request):
 
 
 ######################################
-# Decorator for the per-ip rate limit
+# Decorator for the user-id rate limit
 # ###################################
+
 def rate_limit(identifier, limit, window_size):
     def decorator(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
-            ip = request.headers.get("X-Forwarded-For", request.remote_addr)
-            key_prefix_ip = f"{identifier}:ip:{ip}"
+            # token is used cause they are already verified 
+            token = request.headers.get("Authorization").split(" ")[1]
+            user_id = decode_access_token(token)
 
-            logger.info(f"User ip=> {key_prefix_ip}")
-            # window_queue = ip_queue[key_ip]
+            key_prefix_user_id = f"{identifier}:user_id:{user_id}"
+
+            logger.info(f"User-Id=> {key_prefix_user_id}")
 
             # if sliding_window(window_queue, window_size, limit, key_ip):
             #     return f(*args, **kwargs)
 
-            if not is_rate_limited(key_prefix_ip, limit, window_size):
-                logger.error(f"Blocked IP : {ip} for too many request ")
+            if not is_rate_limited(key_prefix_user_id, limit, window_size):
+                logger.error(f" Blocked user_id : {user_id} for too many request ")
                 return too_many_requests(msg="Rate Limit Exceeded ::) ")
 
             return f(*args, **kwargs)

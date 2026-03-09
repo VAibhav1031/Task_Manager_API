@@ -9,6 +9,7 @@ from task_manager_api.error_handler import internal_server_error, bad_request
 logger = logging.getLogger(__name__)
 
 
+
 def parse_query_date(value: str, end_of_day: bool = False):
     dt = None
     try:

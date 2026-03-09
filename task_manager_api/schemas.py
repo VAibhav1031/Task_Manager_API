@@ -23,6 +23,8 @@ class LoginSchema(Schema):
     def validate_identifier(self, data, **kwargs):
         if not data.get("username") and not data.get("email"):
             raise ValidationError("Either email or username is required")
+        if data.get("username") and data.get("email"):
+            raise ValidationError("You cant have both email and username for login")
 
 
 class AddTask(Schema):

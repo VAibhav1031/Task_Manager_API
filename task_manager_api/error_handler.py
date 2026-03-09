@@ -55,8 +55,8 @@ def handle_marshmallow_error(err, msg=None):
     return bad_request(msg=msg or "Invalid input", details=err.messages)
 
 
-def not_found(msg=None):
-    return error_response(code="NOT_FOUND", status=404, message=msg)
+def not_found(msg=None, reason=None):
+    return error_response(code="NOT_FOUND", status=404, message=msg, reason=reason)
 
 
 def user_already_exists(msg=None):

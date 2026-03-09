@@ -27,5 +27,5 @@ docker-compose.dev.yaml
 # bannnig the Dockefile.dev 
 Dockerfile.dev
 
-.wakatime-project
 
+prometheus-data/

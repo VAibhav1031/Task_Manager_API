@@ -16,18 +16,6 @@ class User(db.Model):
     # id ont think to have the backref for the passwordreset
 
 
-# okay currently if i want to find the tasks for the user as normal way
-# i want to write the  query 'Find all tasks where user.id equals id'
-# this is okay but with relationship()  function we can acess this way easier
-# like user.tasks to list all task belong to the users
-# same from the  tasks side we can do  the task.user
-# this happend because of the backref
-
-#
-# backref user is object table created on the Tasks side which
-# help in acessing the  task object easier
-# you can think it as the  bidirection setup created
-
 
 class Priority(Enum):
     LOW = "low"
@@ -39,7 +27,7 @@ class Task(db.Model):
     __tablename__ = "tasks"
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(60), nullable=False)
-    description = db.Column(db.Text)
+    description = db.Column(db.Text, nullable=False)
     completion = db.Column(db.Boolean, default=False)
     priority = db.Column(
         SqlEnum(
