@@ -48,5 +48,5 @@ else
 fi
 
 echo "Startting the flask application...."
-exec uv run gunicorn --workers 8 -threads 4 -b 0.0.0.0:5555 run:app
+exec uv run gunicorn --workers 8 --threads 4 -b 0.0.0.0:5555 run:app
 
