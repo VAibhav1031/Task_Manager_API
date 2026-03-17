@@ -28,4 +28,4 @@ docker-compose.dev.yaml
 Dockerfile.dev
 
 
-prometheus-data/
+prometheus_data_prod/
