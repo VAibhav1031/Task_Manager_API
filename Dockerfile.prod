@@ -1,17 +1,17 @@
-FROM python:3.14-alpine
+FROM python:3.14-slim
 WORKDIR /task_app
 
 COPY . .
 
 
-RUN apk add --no-cache \
+RUN apt-get update && apt-get install -y \
     postgresql-client \
-    postgresql-dev \
+    libpq-dev \
     gcc \
-    python3-dev \
-    musl-dev && \
+    python3-dev && \
     pip3 install uv && \
-    uv sync
+    uv sync && \
+    rm -rf /var/lib/apt/lists/*
 
 
 RUN chmod +x docker-entrypoint.prod.sh 
