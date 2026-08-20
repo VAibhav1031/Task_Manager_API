@@ -101,7 +101,8 @@ services:
 ####
 
   go-batcher:
-    image: ghcr.io/VAibhav1031/batch_processing:latest
+    # we must have lowercase for the username 
+    image: ghcr.io/vaibhav1031/batch_processing:latest
 
     ports:
       - "127.0.0.1:7676:7676"
