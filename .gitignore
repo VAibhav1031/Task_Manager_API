@@ -30,3 +30,4 @@ Dockerfile.dev
 
 prometheus_data/
 prometheus_data_prod/
+prometheus_data_prod/*

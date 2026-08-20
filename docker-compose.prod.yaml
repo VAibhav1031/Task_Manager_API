@@ -101,9 +101,7 @@ services:
 ####
 
   go-batcher:
-    build:
-      context: ../batch_processing
-      dockerfile: Dockerfile
+    image: ghcr.io/VAibhav1031/batch_processing:latest
 
     ports:
       - "127.0.0.1:7676:7676"
