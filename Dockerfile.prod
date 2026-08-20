@@ -4,14 +4,14 @@ WORKDIR /task_app
 COPY . .
 
 
-RUN apt-get update && apt-get install -y \
+RUN apk add --no-cache \
     postgresql-client \
-    libpq-dev \
+    postgresql-dev \
     gcc \
-    python3-dev && \
+    python3-dev \
+    musl-dev && \
     pip3 install uv && \
-    uv sync && \
-    rm -rf /var/lib/apt/lists/*
+    uv sync
 
 
 RUN chmod +x docker-entrypoint.prod.sh 
